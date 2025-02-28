@@ -14,6 +14,7 @@ export const userTable = mysqlTable('users', {
         .default('operator')
         .notNull(),
     avatar: text(),
+    email: text().notNull(),
 })
 
 export type User = typeof userTable.$inferSelect
