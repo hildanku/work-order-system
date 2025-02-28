@@ -15,6 +15,13 @@
       "when": 1740762498625,
       "tag": "0001_small_donald_blake",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1740765600305,
+      "tag": "0002_steady_dreadnoughts",
+      "breakpoints": true
     }
   ]
 }
