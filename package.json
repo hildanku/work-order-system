@@ -1,17 +1,20 @@
 {
-  "name": "work-order-system",
-  "scripts": {
-    "dev": "bun run --hot src/index.ts"
-  },
-  "dependencies": {
-    "dotenv": "^16.4.7",
-    "drizzle-orm": "^0.40.0",
-    "hono": "^4.7.2",
-    "mysql2": "^3.12.0"
-  },
-  "devDependencies": {
-    "@types/bun": "latest",
-    "drizzle-kit": "^0.30.5",
-    "tsx": "^4.19.3"
-  }
+    "name": "work-order-system",
+    "scripts": {
+        "dev": "bun run --hot src/main.ts"
+    },
+    "dependencies": {
+        "@hono/zod-validator": "^0.4.3",
+        "@node-rs/argon2": "^2.0.2",
+        "dotenv": "^16.4.7",
+        "drizzle-orm": "^0.40.0",
+        "hono": "^4.7.2",
+        "mysql2": "^3.12.0",
+        "zod": "^3.24.2"
+    },
+    "devDependencies": {
+        "@types/bun": "latest",
+        "drizzle-kit": "^0.30.5",
+        "tsx": "^4.19.3"
+    }
 }
