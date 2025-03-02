@@ -12,3 +12,6 @@ export const queryUrlSchema = z.object({
         .default(ORDER)
         .transform((d) => d as OrderQuery),
 })
+export const idSchema = z.object({
+	id: z.coerce.number({ message: 'Invalid id' }),
+})
