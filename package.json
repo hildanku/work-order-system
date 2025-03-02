@@ -9,11 +9,14 @@
         "dotenv": "^16.4.7",
         "drizzle-orm": "^0.40.0",
         "hono": "^4.7.2",
+        "jose": "^6.0.8",
+        "jsonwebtoken": "9.0.2",
         "mysql2": "^3.12.0",
         "zod": "^3.24.2"
     },
     "devDependencies": {
         "@types/bun": "latest",
+        "@types/jsonwebtoken": "9.0.7",
         "drizzle-kit": "^0.30.5",
         "tsx": "^4.19.3"
     }

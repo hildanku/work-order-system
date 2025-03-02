@@ -3,6 +3,7 @@ import { db } from "../../config/db";
 import { User, userTable } from "../../config/db/schema";
 import { BaseRepository, CreateArgs, DeleteArgs, FindByIdArgs, ListArgs, UpdateArgs } from "../../helpers/repository";
 import { LIMIT } from "../../helpers/const";
+import {JWTService} from "../../helpers/middleware/jwt";
 
 export interface UserEntity extends User { }
 
@@ -10,6 +11,9 @@ export type FindByUsername = {
     username: string
 }
 
+type FindByToken = {
+    token: string
+}
 export class UserRepository implements BaseRepository<UserEntity> {
 
     user: UserEntity[] = []
@@ -17,6 +21,14 @@ export class UserRepository implements BaseRepository<UserEntity> {
     public async getUserCount() {
         return await db.select({ count: count() }).from(userTable)
     }
+    async findByToken(args: FindByToken) {
+        const claims = JWTService.decode(args.token)
+        if (claims.sub) {
+            return this.findById({ id: Number(claims.sub) })
+        }
+        return null
+    }
+
 
     async findById(args: FindByIdArgs): Promise<UserEntity[] | null> {
         const users = await db.select().from(userTable).where(eq(userTable.id, args.id))

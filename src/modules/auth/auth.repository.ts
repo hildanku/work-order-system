@@ -6,18 +6,20 @@ import { CreateArgs, DeleteArgs, FindByIdArgs, BaseRepository, UpdateArgs } from
 
 export interface AuthEntity extends Authentication { }
 
-export class AuthenticationRepository implements Omit<BaseRepository<AuthEntity | null>, 'list'> {
+export class AuthenticationRepository implements Omit<BaseRepository<AuthEntity | null>, 'list' | 'findByUser'> {
 
     auth: AuthEntity[] = []
 
-    async findByUser(args: FindByUser): Promise<AuthEntity[] | null> {
+    async findByUser(args: FindByUser): Promise<AuthEntity | null> {
         const auth = await db
             .select()
             .from(authenticationTable)
             .where(
-                eq(authenticationTable.user, args.user_id)
+                eq(authenticationTable.user, args.userId)
             )
             .limit(1)
+
+        console.log(auth[0])
 
         this.auth = auth
 

@@ -5,6 +5,9 @@ import { UserRepository } from "../user/user.repository";
 import { AuthenticationRepository } from "./auth.repository";
 import { appResponse } from "../../helpers/response";
 import { hash, verify } from "@node-rs/argon2";
+import { env } from 'hono/adapter'
+import { ENV } from "../../helpers/types"
+import { JWTService } from "../../helpers/middleware/jwt"
 
 export const authenticationController = new Hono()
     .post('/register', zValidator('form', registerSchema), async (c) => {
@@ -58,7 +61,7 @@ export const authenticationController = new Hono()
 
         const userRepo = new UserRepository()
         const authRepo = new AuthenticationRepository()
-        // const d = new Date().getTime()
+        const date = new Date().getTime()
 
         try {
             const user = await userRepo.findByUsername({ username: valid.username })
@@ -66,13 +69,24 @@ export const authenticationController = new Hono()
                 return appResponse(c, 400, 'username/password is wrong', null)
             }
 
-            const [auth] = await authRepo.findByUser({ user_id: user[0].id })
-            const validPassword = await verify(auth.hash_password, valid.password)
+            const auth = await authRepo.findByUser({ userId: user[0].id })
+
+            const validPassword = await verify(auth[0].hash_password, valid.password)
             if (!validPassword) {
                 return appResponse(c, 400, 'username/password is wrong', null)
             }
 
-            return appResponse(c, 200, 'login success', auth)
+            console.log(user[0], "auth controllert 79")
+            const { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET } = env<ENV>(c)
+            const jwt = new JWTService(JWT_ACCESS_SECRET, JWT_REFRESH_SECRET)
+            const accessToken = await jwt.createAccess(user[0].id)
+            const refreshToken = await jwt.createRefresh(user[0].id)
+
+            await authRepo.update({ id: auth.id, item: { refresh_token: refreshToken, updated_at: date } })
+
+            return appResponse(c, 200, 'login success', { access_token: accessToken, refresh_token: refreshToken })
+            //await authRepo.update({ id: auth[0]!.id, item: { refresh_token: refreshToken, updated_at: date } })
+            //return appResponse(c, 200, 'login success', { access_token: accessToken, refresh_token: refreshToken })
         } catch (error) {
             console.error(error)
             return appResponse(c, 500, 'login failed, something went wrong', null)
