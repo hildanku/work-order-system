@@ -47,6 +47,7 @@
 		"@tanstack/svelte-query": "^5.66.11",
 		"@tanstack/table-core": "^8.21.2",
 		"mode-watcher": "^0.5.1",
+		"runed": "0.15.3",
 		"tailwindcss": "3"
 	}
 }
