@@ -41,3 +41,9 @@ export const loginSchema = z.object({
         .min(8, { message: 'Password is too short, minimum 8 characters' })
         .max(255, { message: 'Password is too long, maximum 255 characters' }),
 })
+
+export const refreshJWTSchema = z.object({
+    refresh_token: z
+        .string({ message: 'refresh token cant be blank' })
+        .min(1, { message: 'refresh token cant be blank' }),
+})
