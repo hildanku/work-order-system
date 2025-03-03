@@ -29,7 +29,7 @@ export type DeleteArgs = {
 export interface BaseRepository<T> {
     create(args: CreateArgs<T>): Promise<T[]>
     findById(args: FindByIdArgs): Promise<T[] | null>
-    list(args?: ListArgs): Promise<{ items: T[]; meta: { totalItems: number } }>
+    list(args: ListArgs): Promise<{ items: T[]; meta: { totalItems: number } }>
     update(args: UpdateArgs<T>): Promise<T[] | null>
     delete(args: DeleteArgs): Promise<boolean>
 }
