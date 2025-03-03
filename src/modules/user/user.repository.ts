@@ -3,7 +3,7 @@ import { db } from "../../config/db";
 import { User, userTable } from "../../config/db/schema";
 import { BaseRepository, CreateArgs, DeleteArgs, FindByIdArgs, ListArgs, UpdateArgs } from "../../helpers/repository";
 import { LIMIT } from "../../helpers/const";
-import {JWTService} from "../../helpers/middleware/jwt";
+import { JWTService } from "../../helpers/middleware/jwt";
 
 export interface UserEntity extends User { }
 
@@ -73,7 +73,10 @@ export class UserRepository implements BaseRepository<UserEntity> {
         return updatedUser
     }
 
-    async list(args: Partial<ListArgs>): Promise<{ items: UserEntity[]; meta: { totalItems: number } }> {
+    async list(args: Partial<ListArgs>): Promise<{
+        items: UserEntity[];
+        meta: { totalItems: number }
+    }> {
 
         const users = await db
             .select()
@@ -96,9 +99,10 @@ export class UserRepository implements BaseRepository<UserEntity> {
 
         const [userCount] = await db.select({ totalItems: count() }).from(userTable)
 
-        return { items: users, meta: { totalItems: userCount.totalItems } }
-
-
+        return {
+            items: users,
+            meta: { totalItems: userCount.totalItems }
+        }
     }
 
     async delete(args: DeleteArgs): Promise<boolean> {

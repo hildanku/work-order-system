@@ -28,7 +28,14 @@
 	const client = getClient();
 	const queryClient = new QueryClient();
 	const userQuery = createQuery({
-		queryKey: ['user'],
+        queryKey: [
+            'user',
+            searchParams.page,
+			searchParams.limit,
+			searchParams.sort,
+			searchParams.order,
+			searchParams.search
+        ],
 		queryFn: async () => {
 			const response = await $client.user.index.$get(
 				{
@@ -189,7 +196,7 @@
 			<DropdownMenu.GroupHeading>Actions</DropdownMenu.GroupHeading>
 			<DropdownMenu.Item
 				class="cursor-pointer"
-				onclick={() => goto(`/dashboard/management/user/upsert?id=${data.id}`)}
+				onclick={() => goto(`/management/users/upsert?id=${data.id}`)}
 			>
 				<span>Edit</span>
 			</DropdownMenu.Item>
@@ -202,7 +209,7 @@
 			<p class="pb-5 text-xl font-bold">Manage User Data</p>
 			<div class="flex flex-row gap-2.5">
 				<Search />
-				<Button onclick={() => goto(`/dashboard/management/user/upsert`)} size="sm">
+				<Button onclick={() => goto(`/management/users/upsert`)} size="sm">
 					<PlusIcon size={ICON_SIZE} />
 					<span>New User</span>
 				</Button>
