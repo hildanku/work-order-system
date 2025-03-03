@@ -1,48 +1,44 @@
-
-import { page } from '$app/stores';
-import { get } from 'svelte/store';
+import { page } from '$app/stores'
+import { get } from 'svelte/store'
 
 export class SearchParams {
-    private searchParams: URLSearchParams;
+	get page() {
+		const searchParams = new URLSearchParams(get(page).url.searchParams)
+		return Number(searchParams.get('page') || '1')
+	}
 
-    constructor() {
-        this.searchParams = new URLSearchParams(get(page).url.searchParams);
-    }
+	get limit() {
+		const searchParams = new URLSearchParams(get(page).url.searchParams)
+		return Number(searchParams.get('limit') || '10')
+	}
 
-    private getParam<T>(key: string, defaultValue: T, parser: (value: string) => T): T {
-        const value = this.searchParams.get(key);
-        return value !== null ? parser(value) : defaultValue;
-    }
+	get sort() {
+		const searchParams = new URLSearchParams(get(page).url.searchParams)
+		return searchParams.get('sort') ?? 'created_at'
+	}
 
-    get page() {
-        return this.getParam('page', 1, Number);
-    }
+	get order() {
+		const searchParams = new URLSearchParams(get(page).url.searchParams)
+		return searchParams.get('order') ?? 'DESC'
+	}
 
-    get limit() {
-        return this.getParam('limit', 10, Number);
-    }
+	get search() {
+		const searchParams = new URLSearchParams(get(page).url.searchParams)
+		return searchParams.get('q') ?? ''
+	}
 
-    get sort() {
-        return this.getParam('sort', 'created_at', String);
-    }
+	get basePriceMax() {
+		const searchParams = new URLSearchParams(get(page).url.searchParams)
+		return Number(searchParams.get('basePriceMax')) ?? 0
+	}
 
-    get order() {
-        return this.getParam('order', 'DESC', String);
-    }
+	get basePriceMin() {
+		const searchParams = new URLSearchParams(get(page).url.searchParams)
+		return Number(searchParams.get('basePriceMin')) ?? 0
+	}
 
-    get search() {
-        return this.getParam('q', '', String);
-    }
-
-    get basePriceMax() {
-        return this.getParam('basePriceMax', 0, Number);
-    }
-
-    get basePriceMin() {
-        return this.getParam('basePriceMin', 0, Number);
-    }
-
-    get category() {
-        return this.getParam('cat', 0, Number);
-    }
+	get category() {
+		const searchParams = new URLSearchParams(get(page).url.searchParams)
+		return Number(searchParams.get('cat')) ?? 0
+	}
 }
