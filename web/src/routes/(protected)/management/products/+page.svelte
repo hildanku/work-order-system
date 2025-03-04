@@ -50,7 +50,8 @@
 					}
 				},
 				{
-					fetch: appFetch
+					fetch: appFetch,
+					init: { headers: { Authorization: localStorage.getItem(ACCESS_TOKEN) || '' } }
 				}
 			);
 			return response.json();
