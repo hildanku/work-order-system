@@ -5,6 +5,7 @@
 	import { getClient } from '@/client';
 	import { createQuery, QueryClient } from '@tanstack/svelte-query';
 	import { appFetch } from '@/fetch';
+	import * as DropdownMenu from '@/components/ui/dropdown-menu';
 	import { navigating } from '$app/stores';
 	import type { ColumnDef, Row } from '@tanstack/table-core';
 	import { renderComponent, renderSnippet } from '@/components/ui/data-table';
@@ -14,7 +15,6 @@
 	import CompactDate from '@/components/ui/tableCell/compactDate.svelte';
 	import type { TableActions, TableBulkBar } from '@/types';
 	import { ACCESS_TOKEN, ICON_SIZE } from '@/const';
-	import * as DropdownMenu from '@/components/ui/dropdown-menu';
 	import { goto } from '$app/navigation';
 	import { Pagination, Search } from '@/components/ui/queryable';
 	import { Button } from '@/components/ui/button';
@@ -54,7 +54,7 @@
 					init: { headers: { Authorization: localStorage.getItem(ACCESS_TOKEN) || '' } }
 				}
 			);
-			return response.json();
+			return await response.json();
 		}
 	});
 
@@ -87,10 +87,11 @@
 			size: 1
 		},
 		{
-			accessorKey: 'photos',
-			header: 'Photo',
+			accessorKey: 'image',
+			header: 'Image',
 			cell: ({ row }) => {
-				return renderSnippet(imageCell, row.original.image);
+				console.log('Row data:', row.original);
+				return renderSnippet(imageCell, row.original);
 			},
 			enableHiding: false
 		},
@@ -118,9 +119,9 @@
 				});
 			},
 			cell: ({ row }) => {
-				return renderComponent(CompactDate, {
-					dateString: row.original.updated_at
-				});
+				return row.original.updated_at
+					? renderComponent(CompactDate, { dateString: row.original.updated_at })
+					: '-';
 			},
 			size: 1
 		},
@@ -174,7 +175,20 @@
 </script>
 
 {#snippet imageCell(data: ProductEntity)}
-	<img class="max-w-[12rem]" src={PRODUCT_UPLOAD_PATH + data.image[0]} alt="" />
+	<pre>{JSON.stringify(data, null, 2)}</pre>
+	<p>Image Debug: "{data.image}"</p>
+
+	{#if data?.image}
+		<img class="max-w-[12rem]" src={PRODUCT_UPLOAD_PATH + data.image} alt="Product Image" />
+	{:else}
+		<p class="text-red-500">No Image</p>
+	{/if}
+
+	<!--- <img
+		class="max-w-[12rem]"
+		src={data.image ? PRODUCT_UPLOAD_PATH + data.image : '/placeholder.jpg'}
+		alt="x"
+	/> -->
 {/snippet}
 
 {#snippet actionContent(data: ProductEntity)}
@@ -183,7 +197,7 @@
 			<DropdownMenu.GroupHeading>Actions</DropdownMenu.GroupHeading>
 			<DropdownMenu.Item
 				class="cursor-pointer"
-				onclick={() => goto(`/dashboard/management/master-data/product/upsert?id=${data.id}`)}
+				onclick={() => goto(`/management/products/upsert?id=${data.id}`)}
 			>
 				<span>Edit</span>
 			</DropdownMenu.Item>
@@ -197,7 +211,7 @@
 			<p class="pb-5 text-xl font-bold">Manage Product Data</p>
 			<div class="flex flex-row gap-2.5">
 				<Search />
-				<Button onclick={() => goto(`/dashboard/management/master-data/product/upsert`)} size="sm">
+				<Button onclick={() => goto(`/management/products/upsert`)} size="sm">
 					<PlusIcon size={ICON_SIZE} />
 					<span>New Product</span>
 				</Button>
@@ -206,7 +220,7 @@
 		{#if $productQuery.isLoading || $productQuery.isError || !$productQuery.data}
 			<Loading />
 		{:else if $productQuery.isSuccess}
-			<DataTable {bulkBar} data={$productQuery.data.results} {columns} {actions} />
+			<DataTable {bulkBar} data={$productQuery.data.results.items} {columns} {actions} />
 			<div class="flex flex-row justify-between">
 				<Limit totalItems={$productQuery.data.results.meta.totalItems} />
 				<Pagination totalItems={$productQuery.data.results.meta.totalItems} />
