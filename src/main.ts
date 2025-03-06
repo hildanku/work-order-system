@@ -4,6 +4,7 @@ import { logger } from 'hono/logger'
 import { healthController } from "./modules/health/health.controller";
 import { userController } from './modules/user/user.controller'
 import { productController } from "./modules/product/product.controller";
+import { serveStatic } from 'hono/bun'
 
 const route = new Hono()
     .route('/auth', authenticationController)
@@ -14,6 +15,14 @@ const route = new Hono()
 const app = new Hono()
     .use('*', logger())
     .route('/api', route)
+    .use(
+        '/public/*',
+        serveStatic({
+            root: './src/public',
+            rewriteRequestPath: (path) =>
+                path.replace('/public', ''),
+        })
+    )
 
 const port = 1337
 
