@@ -5,12 +5,14 @@ import { healthController } from "./modules/health/health.controller";
 import { userController } from './modules/user/user.controller'
 import { productController } from "./modules/product/product.controller";
 import { serveStatic } from 'hono/bun'
+import { workOrderController } from "./modules/work-order/work-order.controller";
 
 const route = new Hono()
     .route('/auth', authenticationController)
     .route('/health', healthController)
     .route('/user', userController)
     .route('/product', productController)
+    .route('/work-order', workOrderController)
 
 const app = new Hono()
     .use('*', logger())

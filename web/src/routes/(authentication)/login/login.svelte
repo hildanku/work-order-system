@@ -84,7 +84,7 @@
 			//if ($localUser?.role && $localUser.role === 'admin') {
 			// goto('/dashboard/management/user?page=1');
 			//} else {
-			goto('/');
+			goto('/management/users');
 			// }
 		},
 
