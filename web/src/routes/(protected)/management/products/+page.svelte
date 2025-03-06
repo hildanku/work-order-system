@@ -14,7 +14,7 @@
 	import CustomContainer from '@/components/ui/misc/customContainer.svelte';
 	import CompactDate from '@/components/ui/tableCell/compactDate.svelte';
 	import type { TableActions, TableBulkBar } from '@/types';
-	import { ACCESS_TOKEN, ICON_SIZE } from '@/const';
+	import { ACCESS_TOKEN, ICON_SIZE, PRODUCT_PATH_PREFIX } from '@/const';
 	import { goto } from '$app/navigation';
 	import { Pagination, Search } from '@/components/ui/queryable';
 	import { Button } from '@/components/ui/button';
@@ -179,7 +179,7 @@
 	<p>Image Debug: "{data.image}"</p>
 
 	{#if data?.image}
-		<img class="max-w-[12rem]" src={PRODUCT_UPLOAD_PATH + data.image} alt="Product Image" />
+		<img class="max-w-[12rem]" src={PRODUCT_PATH_PREFIX + data.image} alt="Product Image" />
 	{:else}
 		<p class="text-red-500">No Image</p>
 	{/if}

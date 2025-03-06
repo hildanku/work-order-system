@@ -4,6 +4,7 @@ import { writable } from 'svelte/store'
 
 import type { authenticationController } from '@root/modules/auth/auth.controller'
 import type { userController } from '@root/modules/user/user.controller'
+import type { productController } from '@root/modules/product/product.controller'
 
 export const client = {
     auth: hc<typeof authenticationController>('/api/auth'),
