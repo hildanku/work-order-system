@@ -1,12 +1,20 @@
 import { BaseRepository, CreateArgs, DeleteArgs, FindByIdArgs, ListArgs, UpdateArgs } from "../../helpers/repository";
-import { workOrderTable, type WorkOrder } from "../../config/db/schema";
+import { productTable, userTable, workOrderTable, type WorkOrder } from "../../config/db/schema";
 import { db } from "../../config/db";
 import { AnyColumn, asc, count, desc, eq, like, or } from "drizzle-orm";
 import { LIMIT } from "../../helpers/const";
+import { ProductEntity } from "../product/product.repository";
+import { UserEntity } from "../user/user.repository";
 
 export interface WorkOrderEntity extends WorkOrder { }
 
-export class WorkOrderRepository implements BaseRepository<WorkOrderEntity> {
+export type ExpandedWorkOrderEntity = {
+    work_orders: WorkOrderEntity
+    products: ProductEntity | null
+    users: UserEntity | null
+}
+
+export class WorkOrderRepository implements Omit<BaseRepository<WorkOrderEntity>, 'list'> {
 
     workOrder: WorkOrderEntity[] = []
 
@@ -78,14 +86,17 @@ export class WorkOrderRepository implements BaseRepository<WorkOrderEntity> {
         }
     }
 
-    async list(args: ListArgs): Promise<{ items: WorkOrderEntity[]; meta: { totalItems: number; }; }> {
+    async list(args: Partial<ListArgs>): Promise<{ items: ExpandedWorkOrderEntity[]; meta: { totalItems: number; }; }> {
         const workOrders = await db
             .select()
             .from(workOrderTable)
+            .leftJoin(productTable, eq(workOrderTable.product, productTable.id))
+            .leftJoin(userTable, eq(workOrderTable.user, userTable.id))
             .where(
                 or(
                     args.q ? eq(workOrderTable.order_code, args.q) : undefined,
                     args.q ? like(workOrderTable.deadline, `%${args.q}%`) : undefined,
+                    args.q ? like(workOrderTable.product, `%${args.q}%`) : undefined
                 )
             )
             .limit(args.limit || LIMIT)
@@ -96,7 +107,6 @@ export class WorkOrderRepository implements BaseRepository<WorkOrderEntity> {
                     : desc(workOrderTable[args.sort as keyof typeof workOrderTable] as AnyColumn),
 
             )
-        this.workOrder = workOrders
 
         const [workOrderCount] = await db.select({ totalItems: count() }).from(workOrderTable)
 

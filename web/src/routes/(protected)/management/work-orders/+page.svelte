@@ -22,6 +22,7 @@
 	import Limit from '@/components/ui/queryable/limit.svelte';
 	import Pagination from '@/components/ui/queryable/pagination.svelte';
 	import CompactDate from '@/components/ui/tableCell/compactDate.svelte';
+	import type { ExpandedWorkOrderEntity } from '@root/modules/work-order/work-order.repository';
 
 	const searchParams = new SearchParams();
 	const client = getClient();
@@ -64,7 +65,7 @@
 		}
 	});
 
-	const columns: ColumnDef<WorkOrderEntity>[] = [
+	const columns: ColumnDef<ExpandedWorkOrderEntity>[] = [
 		{
 			id: 'select',
 			header: ({ table }) =>
@@ -95,6 +96,8 @@
 					parentKey: 'work-order'
 				});
 			},
+			cell: ({ row }) => `${row.original.work_orders?.id}`,
+
 			enableHiding: false
 		},
 		{
@@ -106,10 +109,12 @@
 					parentKey: 'work-order'
 				});
 			},
+			cell: ({ row }) => `${row.original.work_orders?.order_code}`,
+
 			enableHiding: false
 		},
 		{
-			accessorKey: 'product',
+			accessorKey: 'products.name',
 			header: () => {
 				return renderComponent(CustomContainer, {
 					value: 'Product',
@@ -117,6 +122,21 @@
 					parentKey: 'work-order'
 				});
 			},
+			cell: ({ row }) => `${row.original.products?.name}`,
+			size: 1,
+			enableHiding: false
+		},
+		{
+			accessorKey: 'users',
+			header: () => {
+				return renderComponent(CustomContainer, {
+					value: 'Users',
+					key: 'user',
+					parentKey: 'work-order'
+				});
+			},
+			cell: ({ row }) => `${row.original.users?.name}`,
+
 			enableHiding: false
 		},
 		{
@@ -128,6 +148,8 @@
 					parentKey: 'work-order'
 				});
 			},
+			cell: ({ row }) => `${row.original.work_orders.quantity}`,
+
 			enableHiding: false
 		},
 		{
@@ -139,6 +161,8 @@
 					parentKey: 'work-order'
 				});
 			},
+			cell: ({ row }) => `${row.original.work_orders?.status}`,
+
 			enableHiding: false
 		},
 		{
@@ -150,25 +174,27 @@
 					parentKey: 'work-order'
 				});
 			},
+			cell: ({ row }) => `${row.original.work_orders?.deadline}`,
+
 			enableHiding: false
 		},
-		{
+		/* 	{
 			id: 'Updated',
 			accessorKey: 'updated_at',
 			header: () => {
 				return renderComponent(CustomContainer, {
 					value: 'Updated',
 					key: 'updated_at',
-					parentKey: 'user'
+					parentKey: 'work-order'
 				});
 			},
 			cell: ({ row }) => {
 				return renderComponent(CompactDate, {
-					dateString: row.original.updated_at
+					dateString: row.original.work_orders.updated_at | ''
 				});
 			},
 			size: 1
-		},
+		}, */
 		{
 			id: 'Created',
 			accessorKey: 'created_at',
@@ -181,7 +207,7 @@
 			},
 			cell: ({ row }) => {
 				return renderComponent(CompactDate, {
-					dateString: row.original.created_at
+					dateString: row.original.work_orders.created_at
 				});
 			},
 			size: 1

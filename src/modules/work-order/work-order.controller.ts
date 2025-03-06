@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { jwtMiddleware, roleMiddleware } from "../../helpers/middleware/middleware";
 import { zValidator } from "@hono/zod-validator";
-import { WorkOrderEntity, WorkOrderRepository } from "./work-order.repository";
+import { ExpandedWorkOrderEntity, WorkOrderEntity, WorkOrderRepository } from "./work-order.repository";
 import { idSchema, queryUrlSchema } from "../../helpers/validator/base.validator";
 import { appResponse } from "../../helpers/response";
 import { workOrderSchema } from "../../helpers/validator/work-order.validator";
@@ -34,7 +34,7 @@ export const workOrderController = new Hono()
             const workOrders = await WORepo.list({ q, sort, page, limit, order })
             if (!workOrders || workOrders.items.length === 0) {
                 return appResponse(c, 404, 'wo not found', {
-                    items: [] as WorkOrderEntity[],
+                    items: [] as ExpandedWorkOrderEntity[],
                     meta: {
                         totalItems: 0
                     }
