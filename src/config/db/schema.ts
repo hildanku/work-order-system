@@ -44,7 +44,7 @@ export const productTable = mysqlTable('products', {
     updated_at: bigint({ mode: 'number', unsigned: true }),
     name: text().notNull(),
     description: text(),
-    image: json().$type<string>().notNull(),
+    image: text().notNull(),
 })
 
 export type Product = typeof productTable.$inferSelect
