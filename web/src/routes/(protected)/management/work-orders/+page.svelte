@@ -266,7 +266,7 @@
 			<p class="pb-5 text-xl font-bold">Manage Work Order Data</p>
 			<div class="flex flex-row gap-2.5">
 				<Search />
-				<Button onclick={() => goto(`/management/users/upsert`)} size="sm">
+				<Button onclick={() => goto(`/management/work-orders/upsert`)} size="sm">
 					<PlusIcon size={ICON_SIZE} />
 					<span>New Work Order</span>
 				</Button>
