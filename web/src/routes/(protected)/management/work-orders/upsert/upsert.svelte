@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Form from '$lib/components/ui/form';
-	import { SaveIcon } from 'lucide-svelte';
+	import { CalendarIcon, SaveIcon } from 'lucide-svelte';
 	import Loading from '@/components/ui/loading/loading.svelte';
 	import * as Select from '@/components/ui/select/';
 	import { Input } from '@/components/ui/input';
@@ -25,6 +25,17 @@
 	import type { DropdownItem } from '@/components/ui/async-combobox';
 	import type { ProductEntity } from '@root/modules/product/product.repository';
 	import type { UserEntity } from '@root/modules/user/user.repository';
+	import * as Popover from '@/components/ui/popover';
+	import {
+		CalendarDate,
+		DateFormatter,
+		getLocalTimeZone,
+		today,
+		type DateValue
+	} from '@internationalized/date';
+
+	import { buttonVariants } from '@/components/ui/button/button.svelte';
+	import Calendar from '@/components/ui/calendar/calendar.svelte';
 
 	type UpsertFormProps = {
 		data: SuperValidated<Infer<typeof workOrderSchema>>;
@@ -40,6 +51,13 @@
 
 	let selectedUser = $state('');
 	let users = writable<DropdownItem<string>[]>([]);
+
+	const df = new DateFormatter('id-ID', {
+		dateStyle: 'long'
+	});
+
+	let dateStartValue = $state<DateValue | undefined>();
+	let dateStartPlaceholder = $state<DateValue>(today(getLocalTimeZone()));
 
 	const productsQuery = createQuery({
 		queryKey: ['products'],
@@ -129,6 +147,22 @@
 			);
 
 			return response.json();
+		}
+	});
+
+	const pQuery = createQuery({
+		queryKey: ['product'],
+		queryFn: async () => {
+			const response = await $client.product.index.$get(
+				{ query: { q: '', page: '1', sort: 'created_at', order: 'DESC', limit: '500' } },
+				{
+					fetch: appFetch,
+					init: { headers: { Authorization: localStorage.getItem(ACCESS_TOKEN) || '' } }
+				}
+			);
+			const data = await response.json(); // Harus di-await
+			console.log(data); // Debugging
+			return data;
 		}
 	});
 	const upsertQuery = createQuery({
@@ -258,44 +292,46 @@
 	}
 </script>
 
-{#if $upsertQuery.isLoading}
+{#if $upsertQuery.isLoading || $uQuery.isLoading}
 	<Loading />
 {:else}
 	<form method="POST" use:enhance class="flex flex-col gap-4" enctype="multipart/form-data">
-		<Form.Field {form} name="product">
+		<Form.Field {form} name="product" class="min-w-[150px]">
 			<Form.Control>
 				{#snippet children({ props })}
 					<Form.Label>Product</Form.Label>
-					<div class="rounded-lg bg-background">
-						<AsyncCombobox
-							bind:value={selectedProduct}
-							onSelect={handleOnSelect}
-							items={products}
-							loadFn={productLoadFn}
-							{...props}
-						/>
-					</div>
+					<Select.Root
+						type="single"
+						bind:value={
+							() => $formData.product.toString(),
+							(v) => {
+								$formData.product = Number(v);
+								return v;
+							}
+						}
+						name={props.name}
+					>
+						<Select.Trigger {...props} class="capitalize">
+							{$formData.product
+								? $pQuery.data?.results.items.find((c: ProductEntity) => c.id === $formData.product)
+										?.name || ''
+								: 'Select Product'}
+						</Select.Trigger>
+						<Select.Content>
+							{#each $pQuery.data?.results?.items as product}
+								<Select.Item
+									value={product.id.toString()}
+									label={product.name}
+									class="capitalize"
+								/>
+							{/each}
+						</Select.Content>
+					</Select.Root>
 				{/snippet}
 			</Form.Control>
 			<Form.FieldErrors class="text-xs font-normal" />
 		</Form.Field>
-		<!--- <Form.Field {form} name="user">
-			<Form.Control>
-				{#snippet children({ props })}
-					<Form.Label>User</Form.Label>
-					<div class="rounded-lg bg-background">
-						<AsyncCombobox
-							bind:value={selectedUser}
-							onSelect={handleOnSelect}
-							items={users}
-							loadFn={userLoadFn}
-							{...props}
-						/>
-					</div>
-				{/snippet}
-			</Form.Control>
-			<Form.FieldErrors class="text-xs font-normal" />
-		</Form.Field> -->
+
 		<Form.Field {form} name="user" class="min-w-[150px]">
 			<Form.Control>
 				{#snippet children({ props })}
@@ -362,14 +398,47 @@
 			</Form.Control>
 			<Form.FieldErrors class="text-xs font-normal" />
 		</Form.Field>
-		<Form.Field {form} name="deadline">
+		<Form.Field {form} name="deadline" class="flex flex-col">
 			<Form.Control>
-				<Form.Label>Deadline (days)</Form.Label>
-				<Input type="number" bind:value={$formData.deadline} />
+				{#snippet children({ props })}
+					<Form.Label>Deadline</Form.Label>
+					<Popover.Root>
+						<Popover.Trigger
+							{...props}
+							class={cn(
+								buttonVariants({ variant: 'outline' }),
+								'w-full justify-start pl-4 text-left font-normal',
+								!dateStartValue && 'text-muted-foreground'
+							)}
+						>
+							{dateStartValue
+								? df.format(dateStartValue.toDate(getLocalTimeZone()))
+								: 'Pick Deadline'}
+							<CalendarIcon class="ml-auto size-4 opacity-50" />
+						</Popover.Trigger>
+						<Popover.Content class="w-auto p-0" side="bottom" align="start">
+							<Calendar
+								type="single"
+								class="rounded-lg bg-background"
+								bind:value={dateStartValue as DateValue}
+								bind:placeholder={dateStartPlaceholder}
+								minValue={new CalendarDate(1900, 1, 1)}
+								calendarLabel="Date start"
+								onValueChange={(v) => {
+									if (v) {
+										$formData.deadline = v.toDate(getLocalTimeZone()).getTime();
+									} else {
+										$formData.deadline = 0;
+									}
+								}}
+							/>
+						</Popover.Content>
+					</Popover.Root>
+					<Form.FieldErrors />
+					<input hidden value={$formData.deadline} name={props.name} />
+				{/snippet}
 			</Form.Control>
-			<Form.FieldErrors />
 		</Form.Field>
-
 		<Form.Button disabled={$upsertMutation.isPending} class="my-2.5 ms-auto w-full lg:w-fit">
 			<span class="flex flex-row items-center gap-2.5">
 				<span class="lg:hidden">Save</span>
