@@ -19,6 +19,16 @@ export class WorkOrderRepository implements Omit<BaseRepository<WorkOrderEntity>
     workOrder: WorkOrderEntity[] = []
 
 
+    async getLastOrder(): Promise<WorkOrderEntity | null> {
+        const lastOrder = await db
+            .select()
+            .from(workOrderTable)
+            .orderBy(desc(workOrderTable.created_at))
+            .limit(1)
+
+        return lastOrder.length > 0 ? lastOrder[0] : null
+    }
+
     async findById(args: FindByIdArgs): Promise<WorkOrderEntity[] | null> {
         const workOrders = await db
             .select()

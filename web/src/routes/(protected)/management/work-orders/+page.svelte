@@ -227,7 +227,7 @@
 			mutationFn: async (data) => {
 				for (const workOrder of data.map((d) => d.original)) {
 					await $client.workOrder[':id'].$delete(
-						{ param: { id: workOrder.id.toString() } },
+						{ param: { id: workOrder.id } },
 						{
 							fetch: appFetch,
 							init: { headers: { Authorization: localStorage.getItem(ACCESS_TOKEN) || '' } }

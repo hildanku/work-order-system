@@ -7,6 +7,7 @@ import { appResponse } from "../../helpers/response";
 import { workOrderSchema } from "../../helpers/validator/work-order.validator";
 import { UserRepository } from "../user/user.repository";
 import { ProductRepository } from "../product/product.repository";
+import { generateOrderCode } from "../../helpers/lib";
 
 export const workOrderController = new Hono()
     .use('*', async (c, next) => {
@@ -77,11 +78,17 @@ export const workOrderController = new Hono()
             if (!product || product.length === 0) {
                 return appResponse(c, 404, 'product is not found', null)
             }
+
+            const lastOrder = await WORepo.getLastOrder()
+            const lastOrderNumber = lastOrder ? parseInt(lastOrder.order_code!.split('-')[2]) : 0
+
+            const orderCode = generateOrderCode(lastOrderNumber)
+
             const [workOrder] = await WORepo.create({
                 item: {
                     user: form.user,
                     product: form.product,
-                    order_code: form.order_code,
+                    order_code: orderCode,
                     quantity: form.quantity,
                     status: form.status,
                     deadline: form.deadline,
