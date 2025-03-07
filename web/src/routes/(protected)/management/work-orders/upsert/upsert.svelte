@@ -20,10 +20,11 @@
 	import type { z } from 'zod';
 	import { workOrderSchema } from '@root/helpers/validator/work-order.validator';
 	import { writable } from 'svelte/store';
-	import { WORK_ORDER_STATUS } from '@root/helpers/const';
+	import { WORK_ORDER_STATUS_OBJ } from '@root/helpers/const';
 	import AsyncCombobox from '@/components/ui/async-combobox/combobox.svelte';
 	import type { DropdownItem } from '@/components/ui/async-combobox';
 	import type { ProductEntity } from '@root/modules/product/product.repository';
+	import type { UserEntity } from '@root/modules/user/user.repository';
 
 	type UpsertFormProps = {
 		data: SuperValidated<Infer<typeof workOrderSchema>>;
@@ -36,6 +37,10 @@
 
 	let selectedProduct = $state('');
 	let products = writable<DropdownItem<string>[]>([]);
+
+	let selectedUser = $state('');
+	let users = writable<DropdownItem<string>[]>([]);
+
 	const productsQuery = createQuery({
 		queryKey: ['products'],
 		queryFn: async () => {
@@ -87,6 +92,45 @@
 			label: c.name
 		}));
 	}
+
+	async function userLoadFn(search: string) {
+		const users = await $client.user.index.$get(
+			{
+				query: {
+					q: search,
+					limit: '5',
+					sort: 'id'
+				}
+			},
+			{
+				fetch: appFetch,
+				init: {
+					headers: { Authorization: localStorage.getItem(ACCESS_TOKEN) || '' }
+				}
+			}
+		);
+		const resData = await users.json();
+		console.log('85', resData.results.items);
+		return resData.results.items.map((c: UserEntity) => ({
+			value: c.id.toString(),
+			label: c.name
+		}));
+	}
+
+	const uQuery = createQuery({
+		queryKey: ['user'],
+		queryFn: async () => {
+			const response = await $client.user.index.$get(
+				{ query: { q: '', page: '1', sort: 'created_at', order: 'DESC', limit: '500' } },
+				{
+					fetch: appFetch,
+					init: { headers: { Authorization: localStorage.getItem(ACCESS_TOKEN) || '' } }
+				}
+			);
+
+			return response.json();
+		}
+	});
 	const upsertQuery = createQuery({
 		queryKey: ['workOrder', id],
 		queryFn: async () => {
@@ -235,66 +279,89 @@
 			</Form.Control>
 			<Form.FieldErrors class="text-xs font-normal" />
 		</Form.Field>
-		<Form.Field {form} name="user">
+		<!--- <Form.Field {form} name="user">
 			<Form.Control>
 				{#snippet children({ props })}
-					<Form.Label>Product</Form.Label>
+					<Form.Label>User</Form.Label>
 					<div class="rounded-lg bg-background">
 						<AsyncCombobox
-							bind:value={selectedProduct}
+							bind:value={selectedUser}
 							onSelect={handleOnSelect}
-							items={products}
-							loadFn={productLoadFn}
+							items={users}
+							loadFn={userLoadFn}
 							{...props}
 						/>
 					</div>
 				{/snippet}
 			</Form.Control>
 			<Form.FieldErrors class="text-xs font-normal" />
-		</Form.Field>
-
-		<Form.Field {form} name="user">
+		</Form.Field> -->
+		<Form.Field {form} name="user" class="min-w-[150px]">
 			<Form.Control>
-				<Form.Label>User ID</Form.Label>
-				<Input type="number" bind:value={$formData.user} placeholder="User ID" />
+				{#snippet children({ props })}
+					<Form.Label>Operator</Form.Label>
+					<Select.Root
+						type="single"
+						bind:value={
+							() => $formData.user.toString(),
+							(v) => {
+								$formData.user = Number(v);
+								return v;
+							}
+						}
+						name={props.name}
+					>
+						<Select.Trigger {...props} class="capitalize">
+							{$formData.user
+								? $uQuery.data?.results.items.find((c: UserEntity) => c.id === $formData.user)
+										?.name || ''
+								: 'Select Operator'}
+						</Select.Trigger>
+						<Select.Content>
+							{#each $uQuery.data!.results.items as category}
+								<Select.Item
+									value={category.id.toString()}
+									label={category.name}
+									class="capitalize"
+								/>
+							{/each}
+						</Select.Content>
+					</Select.Root>
+				{/snippet}
 			</Form.Control>
-			<Form.FieldErrors />
+			<Form.FieldErrors class="text-xs font-normal" />
 		</Form.Field>
-		<Form.Field {form} name="order_code">
-			<Form.Control>
-				<Form.Label>Order Code</Form.Label>
-				<Input bind:value={$formData.order_code} />
-			</Form.Control>
-			<Form.FieldErrors />
-		</Form.Field>
-
 		<Form.Field {form} name="quantity">
 			<Form.Control>
-				<Form.Label>Quantity</Form.Label>
+				<Form.Label>Quantity(pcs)</Form.Label>
 				<Input type="number" bind:value={$formData.quantity} />
 			</Form.Control>
 			<Form.FieldErrors />
 		</Form.Field>
-
-		<Form.Field {form} name="status">
+		<Form.Field {form} name="status" class="min-w-[150px]">
 			<Form.Control>
-				<Form.Label>Status</Form.Label>
-				<Select.Root bind:value={$formData.status}>
-					<Select.Trigger>
-						{$formData.status || 'Select Status'}
-					</Select.Trigger>
-					<Select.Content>
-						{#each WORK_ORDER_STATUS as status}
-							<Select.Item value={status}>
-								{status}
-							</Select.Item>
-						{/each}
-					</Select.Content>
-				</Select.Root>
+				{#snippet children({ props })}
+					<Form.Label>Status</Form.Label>
+					<Select.Root type="single" bind:value={$formData.status} name={props.name}>
+						<Select.Trigger {...props} class="capitalize">
+							{$formData.status
+								? WORK_ORDER_STATUS_OBJ[$formData.status as keyof typeof WORK_ORDER_STATUS_OBJ]
+								: 'Select Status'}
+						</Select.Trigger>
+						<Select.Content>
+							{#each Object.keys(WORK_ORDER_STATUS_OBJ) as dt}
+								<Select.Item
+									value={dt}
+									label={WORK_ORDER_STATUS_OBJ[dt as keyof typeof WORK_ORDER_STATUS_OBJ]}
+									class="capitalize"
+								/>
+							{/each}
+						</Select.Content>
+					</Select.Root>
+				{/snippet}
 			</Form.Control>
-			<Form.FieldErrors />
+			<Form.FieldErrors class="text-xs font-normal" />
 		</Form.Field>
-
 		<Form.Field {form} name="deadline">
 			<Form.Control>
 				<Form.Label>Deadline (days)</Form.Label>
