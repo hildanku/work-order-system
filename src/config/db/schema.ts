@@ -67,3 +67,19 @@ export const workOrderTable = mysqlTable('work_orders', {
 })
 
 export type WorkOrder = typeof workOrderTable.$inferSelect
+
+export const workOrderProgressTable = mysqlTable('work_order_progress', {
+    id: serial().primaryKey(),
+    work_order: bigint({ mode: 'number', unsigned: true })
+        .notNull()
+        .references(() => workOrderTable.id, { onDelete: 'cascade' }),
+    status: text({ enum: ['pending', 'in_progress', 'completed', 'canceled'] })
+        .notNull(),
+    description: text().notNull(),
+    timestamp: bigint({ mode: 'number', unsigned: true })
+        .notNull()
+        .$defaultFn(() => new Date().getTime()),
+    time_spent: bigint({ mode: 'number', unsigned: true }) // Dalam milidetik
+});
+
+export type WorkOrderProgress = typeof workOrderProgressTable.$inferSelect;
