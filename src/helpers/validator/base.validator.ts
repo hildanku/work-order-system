@@ -15,3 +15,7 @@ export const queryUrlSchema = z.object({
 export const idSchema = z.object({
     id: z.coerce.number({ message: 'Invalid id' }),
 })
+
+export const orderCodeSchema = z.object({
+    order_code: z.coerce.string().regex(/^WO-\d{8}-\d{3}$/),
+})

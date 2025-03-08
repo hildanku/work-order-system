@@ -14,6 +14,10 @@ export type ExpandedWorkOrderEntity = {
     users: UserEntity | null
 }
 
+export type FindByOrderCodeArgs = {
+    order_code: string
+}
+
 export class WorkOrderRepository implements Omit<BaseRepository<WorkOrderEntity>, 'list'> {
 
     workOrder: WorkOrderEntity[] = []
@@ -78,6 +82,21 @@ export class WorkOrderRepository implements Omit<BaseRepository<WorkOrderEntity>
             .limit(1)
 
         return lastOrder.length > 0 ? lastOrder[0] : null
+    }
+
+    async findByOrderCode(args: FindByOrderCodeArgs): Promise<ExpandedWorkOrderEntity[] | null> {
+        const workOrder = await db
+            .select()
+            .from(workOrderTable)
+            .leftJoin(productTable, eq(workOrderTable.product, productTable.id))
+            .leftJoin(userTable, eq(workOrderTable.user, userTable.id))
+            .where(
+                eq(
+                    workOrderTable.order_code, args.order_code
+                )
+            )
+        console.log(workOrder)
+        return workOrder
     }
 
     async findById(args: FindByIdArgs): Promise<WorkOrderEntity[] | null> {
