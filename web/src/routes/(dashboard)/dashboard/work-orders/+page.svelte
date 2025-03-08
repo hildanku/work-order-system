@@ -150,24 +150,24 @@
 		}
 	];
 
-	const actions: TableActions<WorkOrderEntity> = {
+	const actions: TableActions<ExpandedWorkOrderEntity> = {
 		content: actionContent
 	};
 </script>
 
-{#snippet actionContent(data: WorkOrderEntity)}
+{#snippet actionContent(data: ExpandedWorkOrderEntity)}
 	<DropdownMenu.Content side="left" align="start">
 		<DropdownMenu.Group>
 			<DropdownMenu.GroupHeading>Actions</DropdownMenu.GroupHeading>
 			<DropdownMenu.Item
 				class="cursor-pointer"
-				onclick={() => goto(`/operator/work-orders/details?id=${data.id}`)}
+				onclick={() => goto(`/dashboard/work-orders/details/${data?.work_orders.order_code}`)}
 			>
 				<span>View Details</span>
 			</DropdownMenu.Item>
 			<DropdownMenu.Item
 				class="cursor-pointer"
-				onclick={() => goto(`/operator/work-orders/update?id=${data.id}`)}
+				onclick={() => goto(`/dashboard/work-orders/update/${data?.work_orders.order_code}`)}
 			>
 				<span>Update Status</span>
 			</DropdownMenu.Item>

@@ -54,8 +54,6 @@
 				}
 			);
 			return response.json();
-			//return (await response).json;
-			// return await response.json()
 		}
 	});
 

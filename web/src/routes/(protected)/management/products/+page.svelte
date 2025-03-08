@@ -179,6 +179,7 @@
 	<p>Image Debug: "{data.image}"</p>
 
 	{#if data?.image}
+		<!-- svelte-ignore a11y_img_redundant_alt -->
 		<img class="max-w-[12rem]" src={PRODUCT_PATH_PREFIX + data.image} alt="Product Image" />
 	{:else}
 		<p class="text-red-500">No Image</p>
