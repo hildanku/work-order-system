@@ -1,17 +1,41 @@
 <script lang="ts">
-	import * as Avatar from "$lib/components/ui/avatar/index.js";
-	import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
-	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
-	import { useSidebar } from "$lib/components/ui/sidebar/index.js";
-	import BadgeCheck from "lucide-svelte/icons/badge-check";
-	import Bell from "lucide-svelte/icons/bell";
-	import ChevronsUpDown from "lucide-svelte/icons/chevrons-up-down";
-	import CreditCard from "lucide-svelte/icons/credit-card";
-	import LogOut from "lucide-svelte/icons/log-out";
-	import Sparkles from "lucide-svelte/icons/sparkles";
+	import * as Avatar from '$lib/components/ui/avatar/index.js';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import { useSidebar } from '$lib/components/ui/sidebar/index.js';
+	import BadgeCheck from 'lucide-svelte/icons/badge-check';
+	import Bell from 'lucide-svelte/icons/bell';
+	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
+	import CreditCard from 'lucide-svelte/icons/credit-card';
+	import LogOut from 'lucide-svelte/icons/log-out';
+	import Sparkles from 'lucide-svelte/icons/sparkles';
+	import { getClient } from '@/client';
+	import { ACCESS_TOKEN, REFRESH_TOKEN } from '@/const';
+	import { goto } from '$app/navigation';
+	import { Button } from './ui/button';
+	import type { User } from '@root/config/db/schema';
+	// let { user }: { user: { name: string; email: string; avatar: string } } = $props();
 
-	let { user }: { user: { name: string; email: string; avatar: string } } = $props();
 	const sidebar = useSidebar();
+
+	type NavUserProps = {
+		user: User;
+	};
+	let { user }: NavUserProps = $props();
+
+	const client = getClient();
+
+	function handleLogout() {
+		$client.auth.logout
+			.$delete(undefined, {
+				init: { headers: { Authorization: localStorage.getItem(ACCESS_TOKEN) || '' } }
+			})
+			.then(() => {
+				localStorage.removeItem(ACCESS_TOKEN);
+				localStorage.removeItem(REFRESH_TOKEN);
+				goto('/login');
+			});
+	}
 </script>
 
 <Sidebar.Menu>
@@ -31,6 +55,7 @@
 						<div class="grid flex-1 text-left text-sm leading-tight">
 							<span class="truncate font-semibold">{user.name}</span>
 							<span class="truncate text-xs">{user.email}</span>
+							<span class="truncate text-xs">{user.role}</span>
 						</div>
 						<ChevronsUpDown class="ml-auto size-4" />
 					</Sidebar.MenuButton>
@@ -38,7 +63,7 @@
 			</DropdownMenu.Trigger>
 			<DropdownMenu.Content
 				class="w-[--bits-dropdown-menu-anchor-width] min-w-56 rounded-lg"
-				side={sidebar.isMobile ? "bottom" : "right"}
+				side={sidebar.isMobile ? 'bottom' : 'right'}
 				align="end"
 				sideOffset={4}
 			>
@@ -51,6 +76,7 @@
 						<div class="grid flex-1 text-left text-sm leading-tight">
 							<span class="truncate font-semibold">{user.name}</span>
 							<span class="truncate text-xs">{user.email}</span>
+							<span class="truncate text-xs">{user.role}</span>
 						</div>
 					</div>
 				</DropdownMenu.Label>
@@ -78,8 +104,10 @@
 				</DropdownMenu.Group>
 				<DropdownMenu.Separator />
 				<DropdownMenu.Item>
-					<LogOut />
-					Log out
+					<Button onclick={handleLogout} size="sm" class="w-full" variant="destructive">
+						<LogOut />
+						<span>Log out</span>
+					</Button>
 				</DropdownMenu.Item>
 			</DropdownMenu.Content>
 		</DropdownMenu.Root>

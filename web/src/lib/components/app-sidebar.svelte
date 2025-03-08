@@ -1,33 +1,12 @@
 <script lang="ts" module>
-	import AudioWaveform from 'lucide-svelte/icons/audio-waveform';
-	import Bot from 'lucide-svelte/icons/bot';
-	import ChartPie from 'lucide-svelte/icons/chart-pie';
-	import Command from 'lucide-svelte/icons/command';
 	import Frame from 'lucide-svelte/icons/frame';
 	import GalleryVerticalEnd from 'lucide-svelte/icons/gallery-vertical-end';
-	import Map from 'lucide-svelte/icons/map';
-
 	const data = {
-		user: {
-			name: 'admin',
-			email: 'admin@tspfittings',
-			avatar: '/avatars/shadcn.jpg'
-		},
 		teams: [
 			{
 				name: 'Acme Inc',
 				logo: GalleryVerticalEnd,
 				plan: 'Enterprise'
-			},
-			{
-				name: 'Acme Corp.',
-				logo: AudioWaveform,
-				plan: 'Startup'
-			},
-			{
-				name: 'Evil Corp.',
-				logo: Command,
-				plan: 'Free'
 			}
 		],
 
@@ -63,6 +42,13 @@
 				url: '/management',
 				icon: Frame
 			}
+		],
+		operatorNav: [
+			{
+				name: 'Work Order',
+				url: '/work-order',
+				icon: Frame
+			}
 		]
 	};
 </script>
@@ -75,6 +61,13 @@
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import type { ComponentProps } from 'svelte';
 	import { DatabaseIcon } from 'lucide-svelte';
+	import NavOperator from './nav-operator.svelte';
+
+	import { getLocalUser } from '../../routes/+layout.svelte';
+	import type { Writable } from 'svelte/store';
+	import type { User } from '@root/config/db/schema';
+
+	const localUser = getLocalUser() as Writable<User>;
 
 	let {
 		ref = $bindable(null),
@@ -90,9 +83,12 @@
 	<Sidebar.Content>
 		<NavProjects projects={data.projects} />
 		<NavMain items={data.navMain} />
+		{#if localUser}
+			<NavOperator projects={data.operatorNav} />
+		{/if}
 	</Sidebar.Content>
 	<Sidebar.Footer>
-		<NavUser user={data.user} />
+		<NavUser user={$localUser} />
 	</Sidebar.Footer>
 	<Sidebar.Rail />
 </Sidebar.Root>
