@@ -68,7 +68,6 @@
 	import type { User } from '@root/config/db/schema';
 
 	const localUser = getLocalUser() as Writable<User>;
-
 	let {
 		ref = $bindable(null),
 		collapsible = 'icon',
@@ -81,9 +80,10 @@
 		<TeamSwitcher teams={data.teams} />
 	</Sidebar.Header>
 	<Sidebar.Content>
-		<NavProjects projects={data.projects} />
-		<NavMain items={data.navMain} />
-		{#if localUser}
+		{#if $localUser.role === 'production_manager'}
+			<NavProjects projects={data.projects} />
+			<NavMain items={data.navMain} />
+		{:else}
 			<NavOperator projects={data.operatorNav} />
 		{/if}
 	</Sidebar.Content>
