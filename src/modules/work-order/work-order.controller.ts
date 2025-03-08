@@ -21,12 +21,34 @@ export const workOrderController = new Hono()
     .use(
         '*',
         roleMiddleware({
-            get: ['production_manager'],
-            update: ['production_manager'],
+            get: ['production_manager', 'operator'],
+            update: ['production_manager', 'operator'],
             create: ['production_manager'],
             delete: ['production_manager'],
         })
     )
+    .get('/assigned', async (c) => {
+        const WORepo = new WorkOrderRepository()
+        const userRepo = new UserRepository()
+        try {
+            const user = await userRepo.findByToken({ token: c.req.header('Authorization') || '' })
+
+            console.log(user)
+            if (!user || user.length === 0) {
+                return appResponse(c, 401, 'unauthorized', null)
+            }
+
+            const workOrder = await WORepo.getAssignedWorkOrders({ id: user[0].id })
+            if (!workOrder || workOrder.length === 0) {
+                return appResponse(c, 404, 'no work order assigned', null)
+
+            }
+            return appResponse(c, 200, 'success', workOrder)
+        } catch (error) {
+            console.error(error)
+            return appResponse(c, 500, 'something went wrong', null)
+        }
+    })
     .get('/', zValidator('query', queryUrlSchema), async (c) => {
         const { q, page, sort, order, limit } = c.req.valid('query')
         const WORepo = new WorkOrderRepository()

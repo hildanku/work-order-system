@@ -18,6 +18,29 @@ export class WorkOrderRepository implements Omit<BaseRepository<WorkOrderEntity>
 
     workOrder: WorkOrderEntity[] = []
 
+    async getAssignedWorkOrders(args: FindByIdArgs): Promise<ExpandedWorkOrderEntity[]> {
+        const workOrders = await db
+            .select()
+            .from(workOrderTable)
+            .leftJoin(productTable, eq(workOrderTable.product, productTable.id))
+            .leftJoin(userTable, eq(workOrderTable.user, userTable.id))
+            .where(eq(workOrderTable.user, args.id))
+            .orderBy(desc(workOrderTable.created_at))
+        console.log('run')
+        return workOrders
+    }
+
+    async updateStatus(id: number, updates: Partial<Pick<WorkOrderEntity, "status" | "quantity">>): Promise<WorkOrderEntity | null> {
+        await db
+            .update(workOrderTable)
+            .set({
+                ...updates,
+                updated_at: new Date().getTime()
+            })
+            .where(eq(workOrderTable.id, id))
+
+        return (await this.findById({ id }))?.[0] ?? null
+    }
 
     async getLastOrder(): Promise<WorkOrderEntity | null> {
         const lastOrder = await db
