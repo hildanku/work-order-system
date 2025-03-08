@@ -27,16 +27,32 @@
 	const searchParams = new SearchParams();
 	const client = getClient();
 	const queryClient = new QueryClient();
-	console.log(localStorage.getItem(ACCESS_TOKEN));
-
 	// for now use unsafety
 	const workOrderQuery = createQuery({
-		queryKey: ['workOrder'],
+		queryKey: [
+			'workOrder',
+			searchParams.page,
+			searchParams.limit,
+			searchParams.sort,
+			searchParams.order,
+			searchParams.search
+		],
 		queryFn: async () => {
-			const response = await $client.workOrder['assigned'].$get(undefined, {
-				fetch: appFetch,
-				init: { headers: { Authorization: localStorage.getItem(ACCESS_TOKEN) || '' } }
-			});
+			const response = await $client.workOrder['assigned'].$get(
+				{
+					query: {
+						page: searchParams.page.toString(),
+						limit: searchParams.limit.toString(),
+						order: searchParams.order,
+						sort: searchParams.sort,
+						q: searchParams.search
+					}
+				},
+				{
+					fetch: appFetch,
+					init: { headers: { Authorization: localStorage.getItem(ACCESS_TOKEN) || '' } }
+				}
+			);
 			return response.json();
 		}
 	});
@@ -72,8 +88,12 @@
 		{
 			accessorKey: 'id',
 			header: () =>
-				renderComponent(CustomContainer, { value: 'ID', key: 'id', parentKey: 'work-order' }),
-			cell: ({ row }) => `${row.original.work_orders.id}`,
+				renderComponent(CustomContainer, {
+					value: 'ID',
+					key: 'id',
+					parentKey: 'work-order'
+				}),
+			cell: ({ row }) => `${row.original.work_orders?.id}`,
 			enableHiding: false
 		},
 		{
@@ -174,10 +194,10 @@
 				<Search />
 			</div>
 		</div>
-		{#if $workOrderQuery.isLoading || $workOrderQuery.isError || !$workOrderQuery.data}
+		{#if $workOrderQuery.isLoading || $workOrderQuery.isError}
 			<Loading />
 		{:else if $workOrderQuery.isSuccess}
-			<DataTable data={$workOrderQuery.data.results} {columns} {actions} />
+			<DataTable data={$workOrderQuery.data.results.items} {columns} {actions} />
 			<div class="flex flex-row justify-between">
 				<Limit totalItems={$workOrderQuery.data.results.meta.totalItems} />
 				<Pagination totalItems={$workOrderQuery.data.results.meta.totalItems} />

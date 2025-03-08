@@ -1,7 +1,7 @@
 import { BaseRepository, CreateArgs, DeleteArgs, FindByIdArgs, ListArgs, UpdateArgs } from "../../helpers/repository";
 import { productTable, userTable, workOrderTable, type WorkOrder } from "../../config/db/schema";
 import { db } from "../../config/db";
-import { AnyColumn, asc, count, desc, eq, like, or } from "drizzle-orm";
+import { and, AnyColumn, asc, count, desc, eq, like, or } from "drizzle-orm";
 import { LIMIT } from "../../helpers/const";
 import { ProductEntity } from "../product/product.repository";
 import { UserEntity } from "../user/user.repository";
@@ -18,17 +18,45 @@ export class WorkOrderRepository implements Omit<BaseRepository<WorkOrderEntity>
 
     workOrder: WorkOrderEntity[] = []
 
-    async getAssignedWorkOrders(args: FindByIdArgs): Promise<ExpandedWorkOrderEntity[]> {
+
+    async getAssignedWorkOrders(args: Partial<FindByIdArgs & ListArgs>): Promise<{
+        items: ExpandedWorkOrderEntity[];
+        meta: { totalItems: number };
+    }> {
         const workOrders = await db
             .select()
             .from(workOrderTable)
             .leftJoin(productTable, eq(workOrderTable.product, productTable.id))
             .leftJoin(userTable, eq(workOrderTable.user, userTable.id))
-            .where(eq(workOrderTable.user, args.id))
-            .orderBy(desc(workOrderTable.created_at))
-        console.log('run')
-        return workOrders
+            .where(
+                and(
+                    eq(workOrderTable.user, args.id),
+                    or(
+                        args.q ? eq(workOrderTable.order_code, args.q) : undefined,
+                        args.q ? like(workOrderTable.deadline, `%${args.q}%`) : undefined,
+                        args.q ? like(workOrderTable.product, `%${args.q}%`) : undefined
+                    )
+                )
+            )
+            .limit(args.limit || LIMIT)
+            .offset(((args.page || 1) - 1) * (args.limit || LIMIT))
+            .orderBy(
+                args.order === 'ASC'
+                    ? asc(workOrderTable[args.sort as keyof typeof workOrderTable] as AnyColumn)
+                    : desc(workOrderTable[args.sort as keyof typeof workOrderTable] as AnyColumn)
+            );
+
+        const [workOrderCount] = await db
+            .select({ totalItems: count() })
+            .from(workOrderTable)
+            .where(eq(workOrderTable.user, args.id));
+
+        return {
+            items: workOrders,
+            meta: { totalItems: workOrderCount.totalItems }
+        };
     }
+
 
     async updateStatus(id: number, updates: Partial<Pick<WorkOrderEntity, "status" | "quantity">>): Promise<WorkOrderEntity | null> {
         await db

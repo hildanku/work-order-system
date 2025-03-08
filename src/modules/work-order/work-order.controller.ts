@@ -27,26 +27,31 @@ export const workOrderController = new Hono()
             delete: ['production_manager'],
         })
     )
-    .get('/assigned', async (c) => {
-        const WORepo = new WorkOrderRepository()
-        const userRepo = new UserRepository()
+    .get('/assigned', zValidator('query', queryUrlSchema), async (c) => {
+        const { q, page, sort, order, limit } = c.req.valid('query');
+        const WORepo = new WorkOrderRepository();
+        const userRepo = new UserRepository();
+
         try {
-            const user = await userRepo.findByToken({ token: c.req.header('Authorization') || '' })
+            const user = await userRepo.findByToken({ token: c.req.header('Authorization') || '' });
 
-            console.log(user)
             if (!user || user.length === 0) {
-                return appResponse(c, 401, 'unauthorized', null)
+                return appResponse(c, 401, 'unauthorized', null);
             }
 
-            const workOrder = await WORepo.getAssignedWorkOrders({ id: user[0].id })
-            if (!workOrder || workOrder.length === 0) {
-                return appResponse(c, 404, 'no work order assigned', null)
+            const workOrders = await WORepo.getAssignedWorkOrders({ id: user[0].id, q, sort, page, limit, order });
 
+            if (!workOrders || workOrders.items.length === 0) {
+                return appResponse(c, 404, 'no work order assigned', {
+                    items: [] as ExpandedWorkOrderEntity[],
+                    meta: { totalItems: 0 }
+                });
             }
-            return appResponse(c, 200, 'success', workOrder)
+
+            return appResponse(c, 200, 'success', workOrders);
         } catch (error) {
-            console.error(error)
-            return appResponse(c, 500, 'something went wrong', null)
+            console.error(error);
+            return appResponse(c, 500, 'something went wrong', null);
         }
     })
     .get('/', zValidator('query', queryUrlSchema), async (c) => {
