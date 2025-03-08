@@ -196,9 +196,7 @@
 					{
 						param: { id },
 						form: {
-							...data,
-							product: Number(data.product),
-							user: Number(data.user)
+							...data
 						}
 					},
 					{
@@ -295,7 +293,7 @@
 {#if $upsertQuery.isLoading || $uQuery.isLoading}
 	<Loading />
 {:else}
-	<form method="POST" use:enhance class="flex flex-col gap-4" enctype="multipart/form-data">
+	<form method="POST" use:enhance class="flex flex-col gap-4">
 		<Form.Field {form} name="product" class="min-w-[150px]">
 			<Form.Control>
 				{#snippet children({ props })}

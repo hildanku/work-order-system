@@ -12,7 +12,7 @@
 <div class="flex min-h-[100vh] flex-1 flex-col gap-2.5 rounded-xl md:min-h-min">
 	<div class="flex flex-row justify-between">
 		<Button
-			onclick={() => goto('/management/products?page=1&limit=10&sort=created_at')}
+			onclick={() => goto('/management/work-orders?page=1&limit=10&sort=created_at')}
 			variant="outline"
 			size="sm"
 			class="w-fit"
