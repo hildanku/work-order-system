@@ -86,17 +86,6 @@
 			size: 1
 		},
 		{
-			accessorKey: 'id',
-			header: () =>
-				renderComponent(CustomContainer, {
-					value: 'ID',
-					key: 'id',
-					parentKey: 'work-order'
-				}),
-			cell: ({ row }) => `${row.original.work_orders?.id}`,
-			enableHiding: false
-		},
-		{
 			accessorKey: 'order_code',
 			header: () =>
 				renderComponent(CustomContainer, {
