@@ -1,14 +1,14 @@
 <script lang="ts">
-	import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
-	import { useSidebar } from "$lib/components/ui/sidebar/context.svelte.js";
-	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
-	import Ellipsis from "lucide-svelte/icons/ellipsis";
-	import Folder from "lucide-svelte/icons/folder";
-	import Forward from "lucide-svelte/icons/forward";
-	import Trash2 from "lucide-svelte/icons/trash-2";
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
+	import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
+	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+	import Ellipsis from 'lucide-svelte/icons/ellipsis';
+	import Folder from 'lucide-svelte/icons/folder';
+	import Forward from 'lucide-svelte/icons/forward';
+	import Trash2 from 'lucide-svelte/icons/trash-2';
 
 	let {
-		projects,
+		projects
 	}: {
 		projects: {
 			name: string;
@@ -35,7 +35,7 @@
 						</a>
 					{/snippet}
 				</Sidebar.MenuButton>
-				<DropdownMenu.Root>
+				<!-- <DropdownMenu.Root>
 					<DropdownMenu.Trigger>
 						{#snippet child({ props })}
 							<Sidebar.MenuAction showOnHover {...props}>
@@ -63,14 +63,15 @@
 							<span>Delete Project</span>
 						</DropdownMenu.Item>
 					</DropdownMenu.Content>
-				</DropdownMenu.Root>
+				</DropdownMenu.Root> -->
 			</Sidebar.MenuItem>
 		{/each}
+		<!--
 		<Sidebar.MenuItem>
 			<Sidebar.MenuButton class="text-sidebar-foreground/70">
 				<Ellipsis class="text-sidebar-foreground/70" />
 				<span>More</span>
 			</Sidebar.MenuButton>
-		</Sidebar.MenuItem>
+		</Sidebar.MenuItem> -->
 	</Sidebar.Menu>
 </Sidebar.Group>
