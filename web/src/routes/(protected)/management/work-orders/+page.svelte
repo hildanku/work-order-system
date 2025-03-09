@@ -216,7 +216,7 @@
 		}
 	];
 
-	const actions: TableActions<WorkOrderEntity> = {
+	const actions: TableActions<ExpandedWorkOrderEntity> = {
 		content: actionContent
 	};
 
@@ -245,13 +245,13 @@
 	};
 </script>
 
-{#snippet actionContent(data: WorkOrderEntity)}
+{#snippet actionContent(data: ExpandedWorkOrderEntity)}
 	<DropdownMenu.Content side="left" align="start">
 		<DropdownMenu.Group>
 			<DropdownMenu.GroupHeading>Actions</DropdownMenu.GroupHeading>
 			<DropdownMenu.Item
 				class="cursor-pointer"
-				onclick={() => goto(`/management/work-orders/upsert?id=${data.id}`)}
+				onclick={() => goto(`/management/work-orders/upsert?id=${data.work_orders.id}`)}
 			>
 				<span>Edit</span>
 			</DropdownMenu.Item>

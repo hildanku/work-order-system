@@ -6,6 +6,7 @@ import { userController } from './modules/user/user.controller'
 import { productController } from "./modules/product/product.controller";
 import { serveStatic } from 'hono/bun'
 import { workOrderController } from "./modules/work-order/work-order.controller";
+import { progressController } from './modules/progress/progress.controller';
 
 const route = new Hono()
     .route('/auth', authenticationController)
@@ -13,6 +14,7 @@ const route = new Hono()
     .route('/user', userController)
     .route('/product', productController)
     .route('/work-order', workOrderController)
+    .route('/progress', progressController)
 
 const app = new Hono()
     .use('*', logger())

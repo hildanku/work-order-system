@@ -161,13 +161,13 @@
 			<DropdownMenu.GroupHeading>Actions</DropdownMenu.GroupHeading>
 			<DropdownMenu.Item
 				class="cursor-pointer"
-				onclick={() => goto(`/dashboard/work-orders/details/${data?.work_orders.order_code}`)}
+				onclick={() => goto(`/dashboard/work-orders/details/${data?.work_orders.id}`)}
 			>
 				<span>View Details</span>
 			</DropdownMenu.Item>
 			<DropdownMenu.Item
 				class="cursor-pointer"
-				onclick={() => goto(`/dashboard/work-orders/update/${data?.work_orders.order_code}`)}
+				onclick={() => goto(`/dashboard/work-orders/update/${data?.work_orders.id}`)}
 			>
 				<span>Update Status</span>
 			</DropdownMenu.Item>

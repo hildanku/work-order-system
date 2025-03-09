@@ -1,14 +1,48 @@
 import { BaseRepository, CreateArgs, DeleteArgs, FindByIdArgs, ListArgs, UpdateArgs } from '../../helpers/repository'
-import { workOrderProgressTable, type WorkOrderProgress, workOrderTable } from '../../config/db/schema'
+import { workOrderProgressTable, type WorkOrderProgress, workOrderTable, productTable } from '../../config/db/schema'
 import { db } from '../../config/db'
 import { AnyColumn, asc, count, desc, eq, like, or } from 'drizzle-orm'
 import { LIMIT } from '../../helpers/const'
+import { WorkOrderEntity } from '../work-order/work-order.repository'
 
 export interface WorkOrderProgressEntity extends WorkOrderProgress { }
+
+export type FindByOrderCodeArgs = {
+    order_code: string
+}
+
+export type ExpandedWorkOrderProgressEntity = {
+    work_order_progress: WorkOrderProgressEntity
+    work_order: WorkOrderEntity | null
+}
 
 export class WorkOrderProgressRepository implements Omit<BaseRepository<WorkOrderProgressEntity>, 'list'> {
 
     workOrderProgress: WorkOrderProgressEntity[] = []
+
+    async findProgressById(args: FindByIdArgs) {
+        const progress = await db
+            .select()
+            .from(workOrderProgressTable)
+            .leftJoin(workOrderTable, eq(workOrderProgressTable.work_order, workOrderTable.id))
+            .leftJoin(productTable, eq(workOrderTable.product, productTable.id))
+            .where(
+                eq(
+                    workOrderProgressTable.work_order, args.id
+                )
+            )
+        return progress
+    }
+
+    async findByOrderCode(args: FindByIdArgs): Promise<WorkOrderProgressEntity[] | null> {
+        const progress = await db
+            .select()
+            .from(workOrderProgressTable)
+            .where(eq(workOrderProgressTable.work_order, args.id))
+
+        this.workOrderProgress = progress
+        return progress
+    }
 
     async findById(args: FindByIdArgs): Promise<WorkOrderProgressEntity[] | null> {
         const progressRecords = await db
@@ -79,6 +113,7 @@ export class WorkOrderProgressRepository implements Omit<BaseRepository<WorkOrde
                     : desc(workOrderProgressTable[args.sort as keyof typeof workOrderProgressTable] as AnyColumn)
             )
 
+        console.log('progressRecords', progressRecords)
         const [progressCount] = await db.select({ totalItems: count() }).from(workOrderProgressTable)
 
         return {

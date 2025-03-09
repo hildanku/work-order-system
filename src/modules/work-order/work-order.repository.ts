@@ -84,6 +84,21 @@ export class WorkOrderRepository implements Omit<BaseRepository<WorkOrderEntity>
         return lastOrder.length > 0 ? lastOrder[0] : null
     }
 
+    async findByIdExpanded(args: FindByIdArgs): Promise<ExpandedWorkOrderEntity[] | null> {
+        const workOrder = await db
+            .select()
+            .from(workOrderTable)
+            .leftJoin(productTable, eq(workOrderTable.product, productTable.id))
+            .leftJoin(userTable, eq(workOrderTable.user, userTable.id))
+            .where(
+                eq(
+                    workOrderTable.id, args.id
+                )
+            )
+        return workOrder
+    }
+
+
     async findByOrderCode(args: FindByOrderCodeArgs): Promise<ExpandedWorkOrderEntity[] | null> {
         const workOrder = await db
             .select()
@@ -95,7 +110,6 @@ export class WorkOrderRepository implements Omit<BaseRepository<WorkOrderEntity>
                     workOrderTable.order_code, args.order_code
                 )
             )
-        console.log(workOrder)
         return workOrder
     }
 

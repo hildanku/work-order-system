@@ -11,15 +11,15 @@
 	import { fade } from 'svelte/transition';
 	import type { ComponentType } from 'svelte';
 
-	const orderCode = $page.params.orderCode;
+	const woId = $page.params.woId;
 	const client = getClient();
 
 	const workOrderQuery = createQuery({
-		queryKey: ['workOrder', orderCode],
+		queryKey: ['workOrder', woId],
 		queryFn: async () => {
-			const response = await $client.workOrder['assigned'][':orderCode'].$get(
+			const response = await $client.workOrder['assigned'][':woId'].$get(
 				{
-					param: { orderCode }
+					param: { woId }
 				},
 				{
 					fetch: appFetch,
@@ -28,7 +28,24 @@
 			);
 			return response.json();
 		},
-		enabled: !!orderCode
+		enabled: !!woId
+	});
+
+	const workOrderTimelineQuery = createQuery({
+		queryKey: ['workOrderTimeline', woId],
+		queryFn: async () => {
+			const response = await $client.progress['timeline'][':woId'].$get(
+				{
+					param: { woId }
+				},
+				{
+					fetch: appFetch,
+					init: { headers: { Authorization: localStorage.getItem(ACCESS_TOKEN) || '' } }
+				}
+			);
+			return response.json();
+		},
+		enabled: !!woId
 	});
 </script>
 
@@ -37,16 +54,26 @@
 		<ChevronLeft size={ICON_SIZE} />
 		<span class="text-sm">Back</span>
 	</Button>
-	{#if $workOrderQuery.isLoading}
+</div>
+{#if $workOrderQuery.isLoading}
 	<p>Loading...</p>
-	{:else}
+{:else}
 	<div transition:fade class="grid gap-4 lg:grid-cols-2">
 		<div>
 			<WorkOrderDetail workOrder={$workOrderQuery.data.results[0]} />
 		</div>
 		<div>
-			<!-- <WorkOrderTimeline {timelineItems} /> -->
+			<!--- {#each $workOrderTimelineQuery.data.results as progress (progress.work_order_progress.id)}
+                    <WorkOrderTimeline progress={progress.work_order_progress} />
+                {/each} -->
+
+			{#if $workOrderTimelineQuery.data?.results?.length}
+				{#each $workOrderTimelineQuery.data.results as progress (progress.work_order_progress.id)}
+					<WorkOrderTimeline progress={progress.work_order_progress} />
+				{/each}
+			{:else}
+				<p>No timeline data available</p>
+			{/if}
 		</div>
 	</div>
-	{/if}
-</div>
+{/if}

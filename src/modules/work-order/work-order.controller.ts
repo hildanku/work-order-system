@@ -8,7 +8,7 @@ import { workOrderSchema } from "../../helpers/validator/work-order.validator";
 import { UserRepository } from "../user/user.repository";
 import { ProductRepository } from "../product/product.repository";
 import { generateOrderCode } from "../../helpers/lib";
-
+import { WorkOrderProgressRepository as ProgressRepository, WorkOrderProgressEntity } from '../progress/progress.repository'
 export const workOrderController = new Hono()
     .use('*', async (c, next) => {
         const method = c.req.method.toLowerCase()
@@ -27,11 +27,11 @@ export const workOrderController = new Hono()
             delete: ['production_manager'],
         })
     )
-    .get('/assigned/:order_code', zValidator('param', orderCodeSchema), async (c) => {
+    .get('/assigned/:id', zValidator('param', idSchema), async (c) => {
         const params = c.req.valid('param')
         const WORepo = new WorkOrderRepository()
         try {
-            const workOrder = await WORepo.findByOrderCode({ order_code: params.order_code })
+            const workOrder = await WORepo.findByIdExpanded({ id: params.id })
             if (!workOrder) {
                 return appResponse(c, 404, 'work order not found', null)
             }
@@ -108,6 +108,7 @@ export const workOrderController = new Hono()
         const WORepo = new WorkOrderRepository()
         const userRepo = new UserRepository()
         const productRepo = new ProductRepository()
+        const progressRepo = new ProgressRepository()
         try {
             const user = await userRepo.findById({ id: form.user })
             if (!user || user.length === 0) {
@@ -136,6 +137,20 @@ export const workOrderController = new Hono()
                     deadline: form.deadline,
                 }
             })
+
+            const progress = await progressRepo.create({
+                item: {
+                    work_order: workOrder.id,
+                    description: form.description || '',
+                    status: form.status,
+                }
+            })
+            if (!progress) {
+                return appResponse(c, 500, 'failed to create', null)
+            }
+
+            console.log('progress', progress)
+
             return appResponse(c, 201, 'work order created', workOrder)
         } catch (error) {
             console.error(error)

@@ -6,12 +6,15 @@ import type { authenticationController } from '@root/modules/auth/auth.controlle
 import type { userController } from '@root/modules/user/user.controller'
 import type { productController } from '@root/modules/product/product.controller'
 import type { workOrderController } from '@root/modules/work-order/work-order.controller'
+import type { progressController, progressController as WorkOrderProgressController } from '@root/modules/progress/progress.controller'
+
 
 export const client = {
     auth: hc<typeof authenticationController>('/api/auth'),
     user: hc<typeof userController>('/api/user'),
     product: hc<typeof productController>('/api/product'),
     workOrder: hc<typeof workOrderController>('/api/work-order'),
+    progress: hc<typeof progressController>('/api/progress'),
     //user: hc<typeof userCont
 }
 
