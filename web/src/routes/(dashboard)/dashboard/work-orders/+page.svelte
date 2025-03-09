@@ -163,13 +163,7 @@
 				class="cursor-pointer"
 				onclick={() => goto(`/dashboard/work-orders/details/${data?.work_orders.id}`)}
 			>
-				<span>View Details</span>
-			</DropdownMenu.Item>
-			<DropdownMenu.Item
-				class="cursor-pointer"
-				onclick={() => goto(`/dashboard/work-orders/update/${data?.work_orders.id}`)}
-			>
-				<span>Update Status</span>
+				<span>View or Add Progress</span>
 			</DropdownMenu.Item>
 		</DropdownMenu.Group>
 	</DropdownMenu.Content>

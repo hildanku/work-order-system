@@ -46,7 +46,7 @@
 		operatorNav: [
 			{
 				name: 'Work Order',
-				url: '/work-order',
+				url: '/dashboard/work-order',
 				icon: Frame
 			}
 		]
