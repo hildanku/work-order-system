@@ -1,103 +1,104 @@
-# 🎟️ Project Setup Guide
+# 🎟️ Project Setup Guide  
 
-## 🚀 Setup with Docker (Recommended)
+## 🚀 Setup with Docker (Recommended)  
 
-1. **Copy** file `.env.example` lalu **rename** menjadi `.env`.
-2. **Jalankan perintah berikut:**  
+1. **Copy** the `.env.example` file and **rename** it to `.env`.  
+2. **Run the following command:**  
    ```sh
    docker compose up -d
-   ```
-3. **Selesai!** Aplikasi sekarang berjalan di latar belakang.
+   ```  
+3. **Done!** The application is now running in the background.  
 
 ---
 
-## ⚙️ Manual Setup
+## ⚙️ Manual Setup  
 
-### 📌 Requirements:
-Sebelum memulai, pastikan sistem kamu sudah terinstall:
+### 📌 Requirements:  
+Before starting, make sure your system has:  
 1. **Docker CLI/Desktop**  
-2. **JavaScript Runtime** seperti:
-   - **Node.js & npm** atau  
-   - **Bun** (opsional, jika ingin menggunakan runtime alternatif)
+2. **JavaScript Runtime** such as:  
+   - **Node.js & npm**, or  
+   - **Bun** (optional, if you want to use an alternative runtime)  
 
 ---
 
-### 🛠️ Setup MySQL Container
+### 🛠️ Setup MySQL Container  
 
-#### **1️⃣ Persiapan Awal**
-- Copy file `.env.example` lalu rename menjadi `.env`.
+#### **1️⃣ Initial Preparation**  
+- Copy the `.env.example` file and rename it to `.env`.  
 
-#### **2️⃣ Jalankan MySQL Container**
+#### **2️⃣ Run the MySQL Container**  
 ```sh
 docker compose -f docker-manual/compose.yml up -d
 ```
 
-#### **3️⃣ Install Dependencies (Backend)**
+#### **3️⃣ Install Dependencies (Backend)**  
 ```sh
 npm install
 ```
 
-#### **4️⃣ Jalankan Migrasi Database**
+#### **4️⃣ Run Database Migration**  
 ```sh
 npx drizzle-kit migrate
 ```
 
-#### **5️⃣ Jalankan Backend**
+#### **5️⃣ Start the Backend**  
 ```sh
 npm run dev
 ```
 
-#### **6️⃣ Setup Frontend**
-Buka terminal baru, lalu jalankan:
+#### **6️⃣ Setup Frontend**  
+Open a new terminal and run:  
 ```sh
 cd web
 npm install
 ```
 
-#### **7️⃣ Jalankan Frontend**
+#### **7️⃣ Start the Frontend**  
 ```sh
 npm run dev
 ```
 
-#### **8️⃣ Buka Aplikasi di Browser**
-Akses aplikasi melalui:  
+#### **8️⃣ Open the Application in Browser**  
+Access the application at:  
 [http://localhost:5173/](http://localhost:5173/)
 
-## Postman Docs
-- Sementara fitur Registrasi belum tersedia secara UI, untuk membuat akun bisa melalui Rest API dibawah
-- https://www.postman.com/happifycode-5780/hildanku/collection/tv1ayvd/work-order-system?action=share&creator=25016670
+## Postman Docs  
+- Since the Registration feature is not yet available via UI, you can create an account using the following API:  
+- [https://www.postman.com/happifycode-5780/hildanku/collection/tv1ayvd/work-order-system?action=share&creator=25016670](https://www.postman.com/happifycode-5780/hildanku/collection/tv1ayvd/work-order-system?action=share&creator=25016670)
 
-## 🛠️ Stack Teknologi
+## 🛠️ Tech Stack  
 
-### **Backend (API & Database)**
-- **Runtime:** Bun & Node.js
-- **Framework:** Hono
-- **ORM:** Drizzle ORM
-- **Database:** MySQL (mysql2)
-- **Keamanan:**
-  - JWT Authentication (jsonwebtoken, jose)
-  - Password Hashing (argon2)
-- **Validasi Data:** Zod
-- **Konfigurasi Environment:** dotenv
+### **Backend (API & Database)**  
+- **Runtime:** Bun & Node.js  
+- **Framework:** Hono  
+- **ORM:** Drizzle ORM  
+- **Database:** MySQL (mysql2)  
+- **Security:**  
+  - JWT Authentication (jsonwebtoken, jose)  
+  - Password Hashing (argon2)  
+- **Data Validation:** Zod  
+- **Environment Configuration:** dotenv  
 
-### **Frontend (Web App)**
-- **Framework:** SvelteKit
-- **Bundler:** Vite
-- **State Management:** @tanstack/svelte-query
-- **UI & Styling:**
-  - TailwindCSS
-  - Bits UI
-  - Lucide Svelte (ikon)
-- **Form Handling:** Superforms & Formsnap
-- **Linting & Formatting:**
-  - ESLint
-  - Prettier
+### **Frontend (Web App)**  
+- **Framework:** SvelteKit  
+- **Bundler:** Vite  
+- **State Management:** @tanstack/svelte-query  
+- **UI & Styling:**  
+  - TailwindCSS  
+  - Bits UI  
+  - Lucide Svelte (icons)  
+- **Form Handling:** Superforms & Formsnap  
+- **Linting & Formatting:**  
+  - ESLint  
+  - Prettier  
 
-### **Development & Tools**
-- **Database Migration:** Drizzle Kit
-- **Linting & Formatting:** ESLint, Prettier
-- **Type Checking:** TypeScript, Svelte Check
-- **Server Adapter:** @sveltejs/adapter-node (untuk deployment backend)
+### **Development & Tools**  
+- **Database Migration:** Drizzle Kit  
+- **Linting & Formatting:** ESLint, Prettier  
+- **Type Checking:** TypeScript, Svelte Check  
+- **Server Adapter:** @sveltejs/adapter-node (for backend deployment)  
 
-## Screenshot
-- https://drive.google.com/drive/folders/13ZBXQnZ0y0-u1BFZ81MbgNWvX-9Lx6rr?usp=sharing
+## Screenshot  
+- [Google Drive Folder](https://drive.google.com/drive/folders/13ZBXQnZ0y0-u1BFZ81MbgNWvX-9Lx6rr?usp=sharing)
+
