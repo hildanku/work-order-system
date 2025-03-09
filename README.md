@@ -99,3 +99,5 @@ Akses aplikasi melalui:
 - **Type Checking:** TypeScript, Svelte Check
 - **Server Adapter:** @sveltejs/adapter-node (untuk deployment backend)
 
+## Screenshot
+- https://drive.google.com/drive/folders/13ZBXQnZ0y0-u1BFZ81MbgNWvX-9Lx6rr?usp=sharing
