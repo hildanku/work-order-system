@@ -141,16 +141,15 @@ export const workOrderController = new Hono()
             const progress = await progressRepo.create({
                 item: {
                     work_order: workOrder.id,
-                    description: form.description || '',
-                    status: form.status,
+                    description: 'work order is assigned',
+                    status: 'pending',
+                    timestamp: new Date().getTime(),
                 }
             })
-            if (!progress) {
+
+            if (!progress || progress.length === 0) {
                 return appResponse(c, 500, 'failed to create', null)
             }
-
-            console.log('progress', progress)
-
             return appResponse(c, 201, 'work order created', workOrder)
         } catch (error) {
             console.error(error)

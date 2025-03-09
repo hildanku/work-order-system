@@ -6,7 +6,6 @@
 	import { createQuery, QueryClient } from '@tanstack/svelte-query';
 	import { navigating } from '$app/stores';
 	import type { ColumnDef, Row } from '@tanstack/table-core';
-	import type { WorkOrderEntity } from '@root/modules/work-order/work-order.repository';
 	import { renderComponent } from '@/components/ui/data-table';
 	import { Checkbox } from '@/components/ui/checkbox';
 	import CustomContainer from '@/components/ui/misc/customContainer.svelte';
@@ -176,7 +175,7 @@
 
 			enableHiding: false
 		},
-		/* 	{
+		{
 			id: 'Updated',
 			accessorKey: 'updated_at',
 			header: () => {
@@ -188,11 +187,11 @@
 			},
 			cell: ({ row }) => {
 				return renderComponent(CompactDate, {
-					dateString: row.original.work_orders.updated_at | ''
+					dateString: row.original.work_orders.updated_at
 				});
 			},
 			size: 1
-		}, */
+		},
 		{
 			id: 'Created',
 			accessorKey: 'created_at',
@@ -220,12 +219,13 @@
 		content: actionContent
 	};
 
-	const bulkBar: TableBulkBar<void, Error, Row<WorkOrderEntity>[]> = {
+	const bulkBar: TableBulkBar<void, Error, Row<ExpandedWorkOrderEntity>[]> = {
 		mutation: {
 			mutationFn: async (data) => {
 				for (const workOrder of data.map((d) => d.original)) {
+					console.log(workOrder);
 					await $client.workOrder[':id'].$delete(
-						{ param: { id: workOrder.id } },
+						{ param: { id: workOrder.work_orders.id.toString() } },
 						{
 							fetch: appFetch,
 							init: { headers: { Authorization: localStorage.getItem(ACCESS_TOKEN) || '' } }
