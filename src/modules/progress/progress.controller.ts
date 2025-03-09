@@ -55,6 +55,20 @@ export const progressController = new Hono()
             return appResponse(c, 500, 'something went wrong', null)
         }
     })
+    .post('/timeline', zValidator('form', progressSchema), async (c) => {
+        const form = c.req.valid('form')
+        const progressRepo = new ProgressRepository()
+
+        try {
+            const [progress] = await progressRepo.create({
+                item: { ...form, timestamp: new Date().getTime() },
+            })
+            return appResponse(c, 201, 'progress created', progress)
+        } catch (error) {
+            console.error(error)
+            return appResponse(c, 500, 'something went wrong', null)
+        }
+    })
     .get('/', zValidator('query', queryUrlSchema), async (c) => {
         const { q, page, sort, order, limit } = c.req.valid('query')
         const progressRepo = new ProgressRepository()
