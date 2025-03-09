@@ -15,6 +15,12 @@
 	import { progressSchema } from '@root/helpers/validator/progress.validator';
 	import { createMutation } from '@tanstack/svelte-query';
 	import { enhance } from '$app/forms';
+	import * as Popover from '$lib/components/ui/popover';
+	import { Calendar } from '$lib/components/ui/calendar';
+	import { CalendarIcon } from 'lucide-svelte';
+	import { cn } from '$lib/utils';
+	import { buttonVariants } from '$lib/components/ui/button';
+	import { CalendarDate, getLocalTimeZone, today } from '@internationalized/date';
 
 	// Props type
 	type Props = {
@@ -36,13 +42,21 @@
 
 	// Loading state
 	let isSubmitting = $state(false);
-
+	// Date picker state
+	let dateStartValue = $state<CalendarDate | undefined>();
+	let dateEndValue = $state<CalendarDate | undefined>();
 	/** Handle form submission */
 	const handleSubmit = async (e: SubmitEvent) => {
 		e.preventDefault();
 		isSubmitting = true;
 
 		try {
+			if (dateStartValue) {
+				formData.date_start = dateStartValue.toDate(getLocalTimeZone()).getTime();
+			}
+			if (dateEndValue) {
+				formData.date_end = dateEndValue.toDate(getLocalTimeZone()).getTime();
+			}
 			// Validate form data
 			const validatedData = progressSchema.parse(formData);
 
@@ -57,6 +71,8 @@
 			formData.description = '';
 			formData.date_start = Date.now();
 			formData.date_end = Date.now();
+			dateStartValue = undefined;
+			dateEndValue = undefined;
 		} catch (error) {
 			console.error('Validation error:', error);
 		} finally {
@@ -114,29 +130,59 @@
 					required
 				/>
 			</div>
-
 			<div class="grid gap-2">
 				<Label for="date_start">Start Date</Label>
-				<Input
-					id="date_start"
-					type="datetime-local"
-					bind:value={formData.date_start}
-					disabled={isSubmitting}
-					required
-				/>
+				<Popover.Root>
+					<Popover.Trigger
+						class={cn(
+							buttonVariants({ variant: 'outline' }),
+							'w-full justify-start pl-4 text-left font-normal',
+							!dateStartValue && 'text-muted-foreground'
+						)}
+					>
+						{dateStartValue ? dateStartValue.toString() : 'Pick a start date'}
+						<CalendarIcon class="ml-auto size-4 opacity-50" />
+					</Popover.Trigger>
+					<Popover.Content class="w-auto p-0" side="bottom" align="start">
+						<Calendar
+							type="single"
+							class="rounded-lg bg-background"
+							bind:value={dateStartValue}
+							minValue={today(getLocalTimeZone())}
+							onValueChange={(value) => {
+								dateStartValue = value;
+							}}
+						/>
+					</Popover.Content>
+				</Popover.Root>
 			</div>
 
 			<div class="grid gap-2">
 				<Label for="date_end">End Date</Label>
-				<Input
-					id="date_end"
-					type="datetime-local"
-					bind:value={formData.date_end}
-					disabled={isSubmitting}
-					required
-				/>
+				<Popover.Root>
+					<Popover.Trigger
+						class={cn(
+							buttonVariants({ variant: 'outline' }),
+							'w-full justify-start pl-4 text-left font-normal',
+							!dateEndValue && 'text-muted-foreground'
+						)}
+					>
+						{dateEndValue ? dateEndValue.toString() : 'Pick an end date'}
+						<CalendarIcon class="ml-auto size-4 opacity-50" />
+					</Popover.Trigger>
+					<Popover.Content class="w-auto p-0" side="bottom" align="start">
+						<Calendar
+							type="single"
+							class="rounded-lg bg-background"
+							bind:value={dateEndValue}
+							minValue={dateStartValue || today(getLocalTimeZone())}
+							onValueChange={(value) => {
+								dateEndValue = value;
+							}}
+						/>
+					</Popover.Content>
+				</Popover.Root>
 			</div>
-
 			<DialogFooter>
 				<Button variant="outline" onclick={() => (showModal = false)} type="button">Cancel</Button>
 				<Button type="submit" disabled={isSubmitting}>

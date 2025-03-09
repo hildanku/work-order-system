@@ -29,6 +29,7 @@
 	};
 	let { data, id }: UpsertFormProps = $props();
 	let showProgressModal = $state(false);
+	let isDialogOpen = $state(false);
 
 	const insertMutation = createMutation({
 		mutationKey: ['progress'],
@@ -142,10 +143,12 @@
 				<WorkOrderDetail workOrder={$workOrderQuery.data.results[0]} />
 			</div>
 			<!-- Progress form modal -->
+
 			<ProgressForm
 				bind:showModal={showProgressModal}
 				onSubmit={(data) => {
 					console.log('Form submitted:', data);
+					$insertMutation.mutate(data);
 					showProgressModal = false;
 				}}
 			/>
