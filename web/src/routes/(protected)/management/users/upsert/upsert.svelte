@@ -10,22 +10,38 @@
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { Input } from '@/components/ui/input';
 	import { ACCESS_TOKEN, ICON_SIZE } from '@/const';
-	import { SaveIcon } from 'lucide-svelte';
+	import { SaveIcon, CameraIcon } from 'lucide-svelte';
 	import { appFetch } from '@/fetch';
 	import * as Select from '@/components/ui/select';
 	import { ROLE_OBJ } from '@root/helpers/const';
 	import { userSchema } from '@root/helpers/validator/user.validator';
 
+	export type AvatarChangeOptions = {
+		onLoad: (e: ProgressEvent<FileReader>) => void;
+		onAfterLoad?: (f: File) => void;
+	};
+	export function handleAvatarChange(event: Event, options: AvatarChangeOptions) {
+		const file = (event.target as HTMLInputElement).files?.[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onload = options.onLoad;
+			reader.readAsDataURL(file);
+			if (options.onAfterLoad) options.onAfterLoad(file);
+		}
+	}
+
 	type UpsertFormProps = {
 		data: SuperValidated<Infer<typeof userSchema>>;
 		id?: string;
 	};
+	let avatarPreviewUrl = $state('');
+	let avatarInputRef = $state<HTMLInputElement | undefined>(undefined);
 
 	type MutationArgs =
 		| { id: undefined; data: z.infer<typeof userSchema> }
 		| { id: string; data: z.infer<typeof omittedUpdateUserSchema> };
 
-	const omittedUpdateUserSchema = userSchema.omit({ avatar: true });
+	const omittedUpdateUserSchema = userSchema.omit({});
 
 	const client = getClient();
 	let { data, id }: UpsertFormProps = $props();
@@ -54,7 +70,10 @@
 				const response = await $client.user[':id'].$patch(
 					{
 						param: { id },
-						form: { ...data }
+						form: {
+							...data,
+							avatar: data.avatar ? data.avatar : undefined
+						}
 					},
 					{
 						fetch: appFetch,
@@ -142,9 +161,13 @@
 			reset({ data: { ...res, phone: res.phone || undefined } });
 		}
 	});
+	function handleAvatarClick() {
+		avatarInputRef?.click();
+	}
+	export const AVATAR_FORMAT = ['image/jpeg', 'image/png'];
 </script>
 
-<form method="POST" use:enhance class="flex flex-col">
+<form method="POST" use:enhance class="flex flex-col" enctype="multipart/form-data">
 	<Form.Field {form} name="name">
 		<Form.Control>
 			{#snippet children({ props })}
@@ -213,21 +236,54 @@
 			</Form.Control>
 			<Form.FieldErrors class="text-xs font-normal" />
 		</Form.Field>
-		<!--		<Form.Field {form} name="confirm_password">-->
-		<!--			<Form.Control>-->
-		<!--				{#snippet children({ props })}-->
-		<!--					<Form.Label>Confirm Password</Form.Label>-->
-		<!--					<Input-->
-		<!--						disabled={$upsertMutation.isPending}-->
-		<!--						{...props}-->
-		<!--						bind:value={$formData.confirm_password}-->
-		<!--						placeholder="Confirm Password"-->
-		<!--						type="password"-->
-		<!--					/>-->
-		<!--				{/snippet}-->
-		<!--			</Form.Control>-->
-		<!--			<Form.FieldErrors class="text-xs font-normal" />-->
-		<!--		</Form.Field>-->
+		<Form.Field {form} name="avatar">
+			<Form.Control>
+				{#snippet children({ props })}
+					<Form.Label>Avatar</Form.Label>
+					<Form.Description>Change your profile picture</Form.Description>
+					<div class="my-2.5 flex h-full w-full items-center justify-center">
+						<button type="button" onclick={() => handleAvatarClick()}>
+							{#if avatarPreviewUrl !== '/public/avatar/null'}
+								<img
+									src={avatarPreviewUrl}
+									alt="Avatar Preview"
+									class="h-[10rem] w-[10rem] rounded-full object-cover lg:h-[12rem] lg:w-[12rem]"
+								/>
+							{:else}
+								<div
+									class="flex h-[10rem] w-[10rem] items-center justify-center rounded-full border border-border bg-muted lg:h-[12rem] lg:w-[12rem]"
+								>
+									<CameraIcon size={ICON_SIZE} />
+								</div>
+							{/if}
+						</button>
+					</div>
+					<input
+						bind:this={avatarInputRef}
+						disabled={$upsertMutation.isPending}
+						{...props}
+						onchange={(e) =>
+							handleAvatarChange(e, {
+								onLoad: (e) => {
+									avatarPreviewUrl = e.target?.result as string;
+								},
+								onAfterLoad: (f) => {
+									formData.update((form) => {
+										form.avatar = f;
+										return form;
+									});
+								}
+							})}
+						type="file"
+						hidden
+						placeholder="Input your avatar"
+						accept={AVATAR_FORMAT.toString()}
+					/>
+				{/snippet}
+			</Form.Control>
+			<Form.FieldErrors class="text-xs font-normal" />
+		</Form.Field>
+		<h1>s</h1>
 	{/if}
 
 	<Form.Button disabled={$upsertMutation.isPending} class="my-2.5 ms-auto">
