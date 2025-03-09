@@ -59,82 +59,6 @@
 	let dateStartValue = $state<DateValue | undefined>();
 	let dateStartPlaceholder = $state<DateValue>(today(getLocalTimeZone()));
 
-	const productsQuery = createQuery({
-		queryKey: ['products'],
-		queryFn: async () => {
-			const response = await $client.product.index.$get(
-				{
-					query: {
-						page: '1',
-						q: '',
-						sort: 'created_at',
-						order: 'DESC',
-						limit: '12'
-					}
-				},
-				{
-					fetch: appFetch,
-					init: {
-						headers: {
-							Authorization: localStorage.getItem(ACCESS_TOKEN) || ''
-						}
-					}
-				}
-			);
-			const data = await response.json();
-			return data.results;
-		}
-	});
-	async function productLoadFn(search: string) {
-		const products = await $client.product.index.$get(
-			{
-				query: {
-					q: search,
-					limit: '5',
-					sort: 'id'
-				}
-			},
-			{
-				fetch: appFetch,
-
-				init: {
-					headers: { Authorization: localStorage.getItem(ACCESS_TOKEN) || '' }
-				}
-			}
-		);
-
-		const resData = await products.json();
-		console.log('85', resData.results.items);
-		return resData.results.items.map((c: ProductEntity) => ({
-			value: c.id.toString(),
-			label: c.name
-		}));
-	}
-
-	async function userLoadFn(search: string) {
-		const users = await $client.user.index.$get(
-			{
-				query: {
-					q: search,
-					limit: '5',
-					sort: 'id'
-				}
-			},
-			{
-				fetch: appFetch,
-				init: {
-					headers: { Authorization: localStorage.getItem(ACCESS_TOKEN) || '' }
-				}
-			}
-		);
-		const resData = await users.json();
-		console.log('85', resData.results.items);
-		return resData.results.items.map((c: UserEntity) => ({
-			value: c.id.toString(),
-			label: c.name
-		}));
-	}
-
 	const uQuery = createQuery({
 		queryKey: ['user'],
 		queryFn: async () => {
@@ -285,9 +209,6 @@
 			reset({ data: { ...res } });
 		}
 	});
-	function handleOnSelect<T extends { label: string; value: string }>(originalData: T) {
-		$formData.product = Number(originalData.value);
-	}
 </script>
 
 {#if $upsertQuery.isLoading || $uQuery.isLoading}
@@ -352,7 +273,7 @@
 								: 'Select Operator'}
 						</Select.Trigger>
 						<Select.Content>
-							{#each $uQuery.data!.results.items as category}
+							{#each $uQuery.data!.results.items.filter((user: UserEntity) => user.role === 'operator') as category}
 								<Select.Item
 									value={category.id.toString()}
 									label={category.name}
