@@ -70,6 +70,12 @@ export type WorkOrder = typeof workOrderTable.$inferSelect
 
 export const workOrderProgressTable = mysqlTable('work_order_progress', {
     id: serial().primaryKey(),
+    created_at: bigint({ mode: 'number', unsigned: true })
+        .notNull()
+        .$defaultFn(() => new Date().getTime()),
+    updated_at: bigint({ mode: 'number', unsigned: true })
+        .notNull()
+        .$defaultFn(() => new Date().getTime()),
     work_order: bigint({ mode: 'number', unsigned: true })
         .notNull()
         .references(() => workOrderTable.id, { onDelete: 'cascade' }),
@@ -79,7 +85,8 @@ export const workOrderProgressTable = mysqlTable('work_order_progress', {
     timestamp: bigint({ mode: 'number', unsigned: true })
         .notNull()
         .$defaultFn(() => new Date().getTime()),
-    time_spent: bigint({ mode: 'number', unsigned: true }) // Dalam milidetik
+    date_start: bigint({ mode: 'number', unsigned: true }),
+    date_end: bigint({ mode: 'number', unsigned: true }),
 });
 
 export type WorkOrderProgress = typeof workOrderProgressTable.$inferSelect;
