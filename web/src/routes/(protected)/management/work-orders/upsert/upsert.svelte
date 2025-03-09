@@ -46,12 +46,6 @@
 
 	let { data, id }: UpsertFormProps = $props();
 
-	let selectedProduct = $state('');
-	let products = writable<DropdownItem<string>[]>([]);
-
-	let selectedUser = $state('');
-	let users = writable<DropdownItem<string>[]>([]);
-
 	const df = new DateFormatter('id-ID', {
 		dateStyle: 'long'
 	});

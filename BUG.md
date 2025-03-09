@@ -8,9 +8,9 @@
     - search is ok, but pagination is still error
 
 3. Management Work Order
-    - when i want to add a work order to operator, at Operator form, expected is display the list of operator, but for now, production_manager is displayed
-    - when i look table Management Work Order, the Deadline column is display random number, it should be the deadline of the work order
-    - delete work order is still not work
+    - when i want to add a work order to operator, at Operator form, expected is display the list of operator, but for now, production_manager is displayed (fixed)
+    - when i look table Management Work Order, the Deadline column is display random number, it should be the deadline of the work order (fixed issue #8)
+    - delete work order is still not work (fixed #8a7e04f782cb9ffe2995dce9caee612cd400299b)
     - Pick deadline state at edit work order is not passed
     - search is ok, but pagination is still error
 

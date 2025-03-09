@@ -61,106 +61,106 @@ export const userController = new Hono()
             return appResponse(c, 500, 'something went wrong', null)
         }
     })
-.patch(
-		'/:id',
-		zValidator('param', idSchema),
-		zValidator(
-			'form',
-			userSchema.extend({
-				avatar: userSchema.shape.avatar.refine(
-					(r) => {
-						if (r instanceof File) {
-							const size = r.size
-							if (size > 2 * 1024 * 1024) {
-								return false
-							}
-						}
-						return true
-					},
-					{ path: ['avatar'], message: 'Avatar must be less than 2MB' },
-				),
-			}),
-		),
-		async (c) => {
-			const params = c.req.valid('param')
-			const form = c.req.valid('form')
-			const userRepo = new UserRepository()
+    .patch(
+        '/:id',
+        zValidator('param', idSchema),
+        zValidator(
+            'form',
+            userSchema.extend({
+                avatar: userSchema.shape.avatar.refine(
+                    (r) => {
+                        if (r instanceof File) {
+                            const size = r.size
+                            if (size > 2 * 1024 * 1024) {
+                                return false
+                            }
+                        }
+                        return true
+                    },
+                    { path: ['avatar'], message: 'Avatar must be less than 2MB' },
+                ),
+            }),
+        ),
+        async (c) => {
+            const params = c.req.valid('param')
+            const form = c.req.valid('form')
+            const userRepo = new UserRepository()
 
-			try {
-				const body = await c.req.parseBody()
+            try {
+                const body = await c.req.parseBody()
 
-				const currentUser = await userRepo.findByToken({ token: c.req.header('Authorization') || '' })
-				if (
-					!currentUser ||
-					!(
-						currentUser[0].role === 'production_manager' ||
-						currentUser[0].role === 'operator'
-					)
-				) {
-					throw new Error('unauthorized')
-				}
+                const currentUser = await userRepo.findByToken({ token: c.req.header('Authorization') || '' })
+                if (
+                    !currentUser ||
+                    !(
+                        currentUser[0].role === 'production_manager' ||
+                        currentUser[0].role === 'operator'
+                    )
+                ) {
+                    throw new Error('unauthorized')
+                }
 
-				const avatar = body['avatar']
-				let avatarFilename: string | undefined = undefined
+                const avatar = body['avatar']
+                let avatarFilename: string | undefined = undefined
 
-				if (avatar && avatar instanceof File) {
-					avatarFilename = `${new Date().getTime()}-${Math.floor(Math.random() * 1000)}-${avatar.name.toLowerCase()}`
+                if (avatar && avatar instanceof File) {
+                    avatarFilename = `${new Date().getTime()}-${Math.floor(Math.random() * 1000)}-${avatar.name.toLowerCase()}`
 
-					if (!existsSync(AVATAR_UPLOAD_PATH)) {
-						mkdirSync(AVATAR_UPLOAD_PATH, { recursive: true })
-					}
+                    if (!existsSync(AVATAR_UPLOAD_PATH)) {
+                        mkdirSync(AVATAR_UPLOAD_PATH, { recursive: true })
+                    }
 
-					const avatarFilePath = path.join(AVATAR_UPLOAD_PATH, avatarFilename)
-					const buffer = Buffer.from(new Uint8Array(await avatar.arrayBuffer()))
+                    const avatarFilePath = path.join(AVATAR_UPLOAD_PATH, avatarFilename)
+                    const buffer = Buffer.from(new Uint8Array(await avatar.arrayBuffer()))
 
-					writeFileSync(avatarFilePath, buffer)
-				}
+                    writeFileSync(avatarFilePath, buffer)
+                }
 
-				const userBeforeUpdate = await userRepo.findById({
-					id: currentUser[0].role === 'production_manager' ? params.id : currentUser[0].id,
-				})
+                const userBeforeUpdate = await userRepo.findById({
+                    id: currentUser[0].role === 'production_manager' ? params.id : currentUser[0].id,
+                })
 
-				const user = await userRepo
-					.update({
-						id: currentUser[0].role === 'production_manager' ? params.id : currentUser[0].id,
-						item: {
-							...form,
-							updated_at: new Date().getTime(),
-							role: currentUser[0].role === 'operator' ? 'operator' : form.role,
-							avatar: avatarFilename,
-						},
-					})
-					.then((r) => {
-						if (
-							userBeforeUpdate &&
-							avatarFilename &&
-							!(userBeforeUpdate[0].avatar === '' || userBeforeUpdate[0].avatar === null)
-						) {
-							const avatarFilePath = path.join(AVATAR_UPLOAD_PATH, userBeforeUpdate[0].avatar)
-							if (existsSync(avatarFilePath)) {
-								unlinkSync(avatarFilePath)
-							}
-						}
-						return r
-					})
+                const user = await userRepo
+                    .update({
+                        id: currentUser[0].role === 'production_manager' ? params.id : currentUser[0].id,
+                        item: {
+                            ...form,
+                            updated_at: new Date().getTime(),
+                            role: currentUser[0].role === 'operator' ? 'operator' : form.role,
+                            avatar: avatarFilename,
+                        },
+                    })
+                    .then((r) => {
+                        if (
+                            userBeforeUpdate &&
+                            avatarFilename &&
+                            !(userBeforeUpdate[0].avatar === '' || userBeforeUpdate[0].avatar === null)
+                        ) {
+                            const avatarFilePath = path.join(AVATAR_UPLOAD_PATH, userBeforeUpdate[0].avatar)
+                            if (existsSync(avatarFilePath)) {
+                                unlinkSync(avatarFilePath)
+                            }
+                        }
+                        return r
+                    })
 
-				if (!user || user.length === 0) {
-					if (avatarFilename) {
-						const avatarFilePath = path.join(AVATAR_UPLOAD_PATH, avatarFilename)
-						if (existsSync(avatarFilePath)) {
-							unlinkSync(avatarFilePath)
-						}
-					}
-					throw new Error('error updating user')
-				}
+                if (!user || user.length === 0) {
+                    if (avatarFilename) {
+                        const avatarFilePath = path.join(AVATAR_UPLOAD_PATH, avatarFilename)
+                        if (existsSync(avatarFilePath)) {
+                            unlinkSync(avatarFilePath)
+                        }
+                    }
+                    throw new Error('error updating user')
+                }
 
-				return appResponse(c,  200, 'user updated',user[0])
-			} catch (error) {
-				console.error(error)
-				return appResponse(c,500,'something went wrong', null)
-			}
-		},
-	)
+                return appResponse(c, 200, 'user updated', user[0])
+            } catch (error) {
+                console.error(error)
+                return appResponse(c, 500, 'something went wrong', null)
+            }
+        },
+    )
     .delete('/:id', zValidator('param', idSchema), async (c) => {
         const params = c.req.valid('param')
         const userRepo = new UserRepository()
