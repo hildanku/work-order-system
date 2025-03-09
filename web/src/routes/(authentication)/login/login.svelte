@@ -54,8 +54,8 @@
 				form: { username: data.username, password: data.password }
 			});
 
-            console.log(response)
-            
+			console.log(response);
+
 			const resData = await response.json();
 
 			if (response.status !== 200)
@@ -81,11 +81,11 @@
 			toast.success('Login success');
 			await queryClient.fetchQuery(localUserQueryOpts);
 
-			//if ($localUser?.role && $localUser.role === 'admin') {
-			// goto('/dashboard/management/user?page=1');
-			//} else {
-			goto('/management/users');
-			// }
+			if ($localUser?.role && $localUser.role === 'production_manager') {
+				goto('/management/users?page=1');
+			} else {
+				goto('/dashboard/work-orders');
+			}
 		},
 
 		onError: (error) => {
