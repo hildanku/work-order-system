@@ -171,8 +171,11 @@
 					parentKey: 'work-order'
 				});
 			},
-			cell: ({ row }) => `${row.original.work_orders?.deadline}`,
-
+			cell: ({ row }) => {
+				return renderComponent(CompactDate, {
+					dateString: row.original.work_orders.deadline
+				});
+			},
 			enableHiding: false
 		},
 		{
