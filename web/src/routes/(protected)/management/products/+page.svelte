@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { ProductEntity } from '@root/modules/product/product.repository';
-	import { PRODUCT_UPLOAD_PATH } from '@root/helpers/const';
 	import { SearchParams } from '@/hooks/searchParams.svelte';
 	import { getClient } from '@/client';
 	import { createQuery, QueryClient } from '@tanstack/svelte-query';
@@ -90,7 +89,6 @@
 			accessorKey: 'image',
 			header: 'Image',
 			cell: ({ row }) => {
-				console.log('Row data:', row.original);
 				return renderSnippet(imageCell, row.original);
 			},
 			enableHiding: false
@@ -175,21 +173,12 @@
 </script>
 
 {#snippet imageCell(data: ProductEntity)}
-	<pre>{JSON.stringify(data, null, 2)}</pre>
-	<p>Image Debug: "{data.image}"</p>
-
 	{#if data?.image}
 		<!-- svelte-ignore a11y_img_redundant_alt -->
 		<img class="max-w-[12rem]" src={PRODUCT_PATH_PREFIX + data.image} alt="Product Image" />
 	{:else}
 		<p class="text-red-500">No Image</p>
 	{/if}
-
-	<!--- <img
-		class="max-w-[12rem]"
-		src={data.image ? PRODUCT_UPLOAD_PATH + data.image : '/placeholder.jpg'}
-		alt="x"
-	/> -->
 {/snippet}
 
 {#snippet actionContent(data: ProductEntity)}

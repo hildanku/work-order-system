@@ -94,17 +94,6 @@
 
 		<form use:enhance onsubmit={handleSubmit} class="grid gap-4 py-4">
 			<div class="grid gap-2">
-				<Label for="work_order">Work Order ID</Label>
-				<Input
-					id="work_order"
-					bind:value={formData.work_order}
-					placeholder="Enter work order ID"
-					disabled={isSubmitting}
-					required
-				/>
-			</div>
-
-			<div class="grid gap-2">
 				<Label for="status">Status</Label>
 				<Select type="single" bind:value={formData.status}>
 					<SelectTrigger id="status">
