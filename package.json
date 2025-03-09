@@ -1,9 +1,11 @@
 {
     "name": "work-order-system",
     "scripts": {
-        "dev": "bun run --hot src/main.ts"
+        "dev": "bun run --hot src/main.ts",
+        "dev-node": "npm run src/main.ts"
     },
     "dependencies": {
+        "@hono/node-server": "1.13.7",
         "@hono/zod-validator": "^0.4.3",
         "@node-rs/argon2": "^2.0.2",
         "dotenv": "^16.4.7",

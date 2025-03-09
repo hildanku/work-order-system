@@ -4,7 +4,8 @@ import { logger } from 'hono/logger'
 import { healthController } from "./modules/health/health.controller";
 import { userController } from './modules/user/user.controller'
 import { productController } from "./modules/product/product.controller";
-import { serveStatic } from 'hono/bun'
+import { serveStatic } from '@hono/node-server/serve-static'
+import { serve } from '@hono/node-server'
 import { workOrderController } from "./modules/work-order/work-order.controller";
 import { progressController } from './modules/progress/progress.controller';
 
@@ -18,7 +19,7 @@ const route = new Hono()
 
 const app = new Hono()
     .use('*', logger())
-    .route('/api', route)
+    .use('*', serveStatic({ root: './src/static/' }))
     .use(
         '/public/*',
         serveStatic({
@@ -27,6 +28,7 @@ const app = new Hono()
                 path.replace('/public', ''),
         })
     )
+    .route('/api', route)
 
 const port = 1337
 
