@@ -1,0 +1,21 @@
+# Gunakan Bun sebagai base image
+FROM oven/bun:1 AS base
+WORKDIR /usr/src/app
+
+# Copy package.json dan bun.lock
+COPY package.json bun.lock ./
+
+# Install dependencies menggunakan Bun
+RUN bun install
+
+# Copy seluruh proyek
+COPY . .
+
+# Ekspos port Vite
+EXPOSE 5173
+
+# # Gunakan volume agar kode dapat diperbarui tanpa rebuild
+VOLUME ["/usr/src/app"]
+
+# Jalankan aplikasi dalam mode development
+CMD ["bun", "run", "dev"]

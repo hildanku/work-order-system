@@ -2,7 +2,8 @@
     "name": "work-order-system",
     "scripts": {
         "dev": "bun run --hot src/main.ts",
-        "dev-node": "npm run src/main.ts"
+        "dev-node": "npm run src/main.ts",
+        "build": "bun build src/main.ts --outdir=dist --target=bun"
     },
     "dependencies": {
         "@hono/node-server": "1.13.7",

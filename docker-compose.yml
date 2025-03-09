@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   mysql:
     image: mysql:latest
@@ -12,30 +14,250 @@ services:
       - "${MYSQL_PORT}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build:
       context: ./
+      dockerfile: Dockerfile.backend
     container_name: backend
     restart: always
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     ports:
       - "1337:1337"
     environment:
       DATABASE_URL: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    entrypoint: ["/bin/sh", "-c", "sleep 10 && bunx drizzle-kit migrate && bun run dev"]
 
   frontend:
     build:
-      context: ./web
+      context: ./
+      dockerfile: Dockerfile.frontend
     container_name: frontend
     restart: always
     depends_on:
-      - backend
+      mysql:
+        condition: service_healthy
+      backend:
+        condition: service_started
     ports:
       - "5173:5173"
     environment:
       PUBLIC_BACKEND_URL: http://backend:1337
+    volumes:
+      - ./web:/usr/src/app
+      - /usr/src/app/node_modules
 
 volumes:
   mysql_data:
+
+# version: '3.8'
+
+# services:
+#   mysql:
+#     image: mysql:latest
+#     container_name: mysql_db
+#     restart: always
+#     environment:
+#       MYSQL_DATABASE: ${MYSQL_DATABASE}
+#       MYSQL_USER: ${MYSQL_USER}
+#       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+#       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+#     ports:
+#       - "${MYSQL_PORT}:3306"
+#     volumes:
+#       - mysql_data:/var/lib/mysql
+
+#   backend:
+#     build:
+#       context: ./
+#       dockerfile: Dockerfile.backend
+#     container_name: backend
+#     restart: always
+#     depends_on:
+#       mysql:
+#         condition: service_healthy
+#     ports:
+#       - "1337:1337"
+#     environment:
+#       DATABASE_URL: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}
+#     volumes:
+#       - .:/usr/src/app  # Auto-update saat ada perubahan kode
+#       - /usr/src/app/node_modules  # Cegah konflik node_modules host & container
+
+#   frontend:
+#     build:
+#       context: ./
+#       dockerfile: Dockerfile.frontend
+#     container_name: frontend
+#     restart: always
+#     depends_on:
+#       mysql:
+#         condition: service_healthy  # Pastikan MySQL siap sebelum frontend dijalankan
+#       backend:
+#         condition: service_started  # Backend harus sudah berjalan lebih dulu
+#     ports:
+#       - "5173:5173"
+#     environment:
+#       PUBLIC_BACKEND_URL: http://backend:1337
+#     volumes:
+#       - ./web:/usr/src/app  # Auto-update saat ada perubahan kode
+#       - /usr/src/app/node_modules  # Cegah konflik node_modules host & container
+
+# volumes:
+#   mysql_data:
+
+# version: '3.8'
+
+# services:
+#   mysql:
+#     image: mysql:latest
+#     container_name: mysql_db
+#     restart: always
+#     environment:
+#       MYSQL_DATABASE: ${MYSQL_DATABASE}
+#       MYSQL_USER: ${MYSQL_USER}
+#       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+#       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+#     ports:
+#       - "${MYSQL_PORT}:3306"
+#     volumes:
+#       - mysql_data:/var/lib/mysql
+
+#   backend:
+#     build:
+#       context: ./
+#       dockerfile: Dockerfile.backend
+#     container_name: backend
+#     restart: always
+#     depends_on:
+#       - mysql
+#     ports:
+#       - "1337:1337"
+#     environment:
+#       DATABASE_URL: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}
+#     volumes:
+#       - .:/usr/src/app  # Auto-update saat ada perubahan kode
+#       - /usr/src/app/node_modules  # Cegah konflik node_modules host & container
+
+#   frontend:
+#     build:
+#       context: ./
+#       dockerfile: Dockerfile.frontend
+#     container_name: frontend
+#     restart: always
+#     depends_on:
+#       - backend
+#     ports:
+#       - "5173:5173"
+#     environment:
+#       PUBLIC_BACKEND_URL: http://backend:1337
+#     volumes:
+#       - ./web:/usr/src/app  # Auto-update saat ada perubahan kode
+#       - /usr/src/app/node_modules  # Cegah konflik node_modules host & container
+
+# volumes:
+#   mysql_data:
+
+
+# # services:
+# #   mysql:
+# #     image: mysql:latest
+# #     container_name: mysql_db
+# #     restart: always
+# #     environment:
+# #       MYSQL_DATABASE: ${MYSQL_DATABASE}
+# #       MYSQL_USER: ${MYSQL_USER}
+# #       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+# #       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+# #     ports:
+# #       - "${MYSQL_PORT}:3306"
+# #     volumes:
+# #       - mysql_data:/var/lib/mysql
+
+# #   backend:
+# #     build:
+# #       context: ./
+# #     container_name: backend
+# #     restart: always
+# #     depends_on:
+# #       - mysql
+# #     ports:
+# #       - "1337:1337"
+# #     environment:
+# #       DATABASE_URL: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}
+
+# #   frontend:
+# #     build:
+# #       context: ./web
+# #     container_name: frontend
+# #     restart: always
+# #     depends_on:
+# #       - backend
+# #     ports:
+# #       - "5173:5173"
+# #     environment:
+# #       PUBLIC_BACKEND_URL: http://backend:1337
+
+# # volumes:
+# #   mysql_data:
+
+
+# version: '3.8'
+
+# services:
+#   mysql:
+#     image: mysql:latest
+#     container_name: mysql_db
+#     restart: always
+#     environment:
+#       MYSQL_DATABASE: ${MYSQL_DATABASE}
+#       MYSQL_USER: ${MYSQL_USER}
+#       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+#       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+#     ports:
+#       - "${MYSQL_PORT}:3306"
+#     volumes:
+#       - mysql_data:/var/lib/mysql
+
+#   backend:
+#     build:
+#       context: ./
+#       dockerfile: Dockerfile
+#     container_name: backend
+#     restart: always
+#     depends_on:
+#       - mysql
+#     ports:
+#       - "1337:1337"
+#     environment:
+#       DATABASE_URL: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}
+#     volumes:
+#       - .:/usr/src/app
+
+#   frontend:
+#     build:
+#       context: ./web
+#       dockerfile: Dockerfile
+#     container_name: frontend
+#     restart: always
+#     depends_on:
+#       - backend
+#     ports:
+#       - "5173:5173"
+#     environment:
+#       PUBLIC_BACKEND_URL: http://backend:1337
+#     volumes:
+#       - ./web:/usr/src/app
+
+# volumes:
+#   mysql_data:
