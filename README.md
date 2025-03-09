@@ -63,7 +63,9 @@ npm run dev
 Akses aplikasi melalui:  
 [http://localhost:5173/](http://localhost:5173/)
 
----
+## Postman Docs
+- Sementara fitur Registrasi belum tersedia secara UI, untuk membuat akun bisa melalui Rest API dibawah
+- https://www.postman.com/happifycode-5780/hildanku/collection/tv1ayvd/work-order-system?action=share&creator=25016670
 
 ## 🛠️ Stack Teknologi
 
