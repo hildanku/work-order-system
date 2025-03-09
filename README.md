@@ -63,3 +63,37 @@ npm run dev
 Akses aplikasi melalui:  
 [http://localhost:5173/](http://localhost:5173/)
 
+---
+
+## 🛠️ Stack Teknologi
+
+### **Backend (API & Database)**
+- **Runtime:** Bun & Node.js
+- **Framework:** Hono
+- **ORM:** Drizzle ORM
+- **Database:** MySQL (mysql2)
+- **Keamanan:**
+  - JWT Authentication (jsonwebtoken, jose)
+  - Password Hashing (argon2)
+- **Validasi Data:** Zod
+- **Konfigurasi Environment:** dotenv
+
+### **Frontend (Web App)**
+- **Framework:** SvelteKit
+- **Bundler:** Vite
+- **State Management:** @tanstack/svelte-query
+- **UI & Styling:**
+  - TailwindCSS
+  - Bits UI
+  - Lucide Svelte (ikon)
+- **Form Handling:** Superforms & Formsnap
+- **Linting & Formatting:**
+  - ESLint
+  - Prettier
+
+### **Development & Tools**
+- **Database Migration:** Drizzle Kit
+- **Linting & Formatting:** ESLint, Prettier
+- **Type Checking:** TypeScript, Svelte Check
+- **Server Adapter:** @sveltejs/adapter-node (untuk deployment backend)
+
