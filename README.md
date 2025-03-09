@@ -1,3 +1,14 @@
+# 📌 Work Order Management System
+
+Work Order Management System is a web-based application designed to streamline the creation, tracking, and completion of work orders efficiently.
+
+## 🚀 Features
+- **Work Order Tracking** – Monitor progress in a timeline view, similar to shipment tracking.
+- **User Authentication** – Secure login using JWT authentication.
+- **Database Management** – MySQL integration with Drizzle ORM.
+- **Modern UI** – Built with SvelteKit, TailwindCSS, and @tanstack/svelte-query.
+- **REST API** – Backend powered by Hono and Bun/Node.js.
+
 # 🎟️ Project Setup Guide  
 
 ## 🚀 Setup with Docker (Recommended)  
