@@ -6,7 +6,6 @@ import { ProductRepository } from "./product.repository"
 import { jwtMiddleware, roleMiddleware } from "../../helpers/middleware/middleware"
 import { idSchema, queryUrlSchema } from "../../helpers/validator/base.validator"
 import { productSchema } from "../../helpers/validator/product.validator"
-import { nanoid } from 'nanoid'
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import path = require('node:path')
 import { PRODUCT_UPLOAD_PATH } from "../../helpers/const"
@@ -73,9 +72,7 @@ export const productController = new Hono()
 
                 const image = body['image']
                 let imageFilename: string | undefined = undefined
-                // if (!image) {
-                //    return appResponse(c, 400, 'No files uploaded', null)
-                // }
+
                 if (image && image instanceof File) {
 
                     imageFilename = `${new Date().getTime()}-${Math.floor(Math.random() * 1000)}-${image.name.toLowerCase()}`
@@ -136,23 +133,14 @@ export const productController = new Hono()
         try {
             const image = body['image']
             let imageFilename: string | undefined = undefined
-            // if (!image) {
-            //    return appResponse(c, 400, 'No files uploaded', null)
-            // }
-            console.log('line142', image)
-            if (image && image instanceof File) {
 
+            if (image && image instanceof File) {
                 imageFilename = `${new Date().getTime()}-${Math.floor(Math.random() * 1000)}-${image.name.toLowerCase()}`
-                console.log('146', imageFilename)
                 if (!existsSync(PRODUCT_UPLOAD_PATH)) {
                     mkdirSync(PRODUCT_UPLOAD_PATH, { recursive: true })
-                    console.log('membuat dir')
                 }
                 const imageFilePath = path.join(PRODUCT_UPLOAD_PATH, imageFilename)
                 const buffer = Buffer.from(await image.arrayBuffer())
-
-                console.log('linen152', imageFilePath)
-
                 try {
                     writeFileSync(imageFilePath, buffer)
                 } catch (err) {

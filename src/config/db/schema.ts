@@ -41,7 +41,9 @@ export const productTable = mysqlTable('products', {
     created_at: bigint({ mode: 'number', unsigned: true })
         .notNull()
         .$defaultFn(() => new Date().getTime()),
-    updated_at: bigint({ mode: 'number', unsigned: true }),
+    updated_at: bigint({ mode: 'number', unsigned: true })
+        .notNull()
+        .$defaultFn(() => new Date().getTime()),
     name: text().notNull(),
     description: text(),
     image: text().notNull(),
@@ -54,7 +56,9 @@ export const workOrderTable = mysqlTable('work_orders', {
     created_at: bigint({ mode: 'number', unsigned: true })
         .notNull()
         .$defaultFn(() => new Date().getTime()),
-    updated_at: bigint({ mode: 'number', unsigned: true }),
+    updated_at: bigint({ mode: 'number', unsigned: true })
+        .notNull()
+        .$defaultFn(() => new Date().getTime()),
     order_code: text(),
     product: bigint({ mode: 'number', unsigned: true })
         .references(() => productTable.id, { onDelete: 'set null' }),
